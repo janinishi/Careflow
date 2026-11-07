@@ -7,9 +7,8 @@
 
 declare(strict_types=1);
 
-// রেন্ডার থেকে পাওয়া পোস্টগ্রেস ডেটাবেস ইউআরএল সরাসরি এখানে বসিয়ে দিতে পারেন 
-// অথবা চাইলে Render Dashboard-এ Environment Variable হিসেবেও সেট করতে পারেন।
-$database_url = getenv('DATABASE_URL') ?: 'postgresql://careflow_db_2f4d_user:dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK@dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com/careflow_db_2f4d';
+// Render থেকে পাওয়া সঠিক ইউজারনেম (postgres) দিয়ে ইউআরএলটি আপডেট করা হলো
+$database_url = getenv('DATABASE_URL') ?: 'postgresql://postgres:dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK@dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com/careflow_db_2f4d';
 
 $dbparts = parse_url($database_url);
 
