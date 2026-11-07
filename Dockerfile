@@ -1,12 +1,12 @@
-FROM php:8.2-apache
+FROM php:8.1-apache
 
-# Install necessary PHP extensions for database (PDO MySQL)
-RUN docker-php-ext-install pdo pdo_mysql
+# PostgreSQL ড্রাইভারের জন্য প্রয়োজনীয় ডিপেন্ডেন্সি এবং এক্সটেনশন ইনস্টল করা
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql
 
-# Copy all project files into Apache's web directory
+# অ্যাপ্লিকেশনের ফাইলগুলো কন্টেইনারে কপি করা
 COPY . /var/www/html/
 
-# Set proper permissions
+# সঠিক পারমিশন সেট করা
 RUN chown -R www-data:www-data /var/www/html
-
-EXPOSE 80
