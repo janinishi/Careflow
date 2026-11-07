@@ -1,24 +1,14 @@
 <?php
 /**
  * CareFlow - Database Connection (PDO - PostgreSQL)
- * 
- * রেন্ডারের পোস্টগ্রেস ডেটাবেসের জন্য আপডেট করা কোড
  */
 
 declare(strict_types=1);
 
-$database_url = getenv('DATABASE_URL') ?: 'postgresql://postgres:dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK@dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com/careflow_db_2f4d';
-
-$dbparts = parse_url($database_url);
-
-$dbHost = $dbparts['host'] ?? 'localhost';
-$dbPort = $dbparts['port'] ?? '5432';
-$dbName = ltrim($dbparts['path'] ?? '', '/');
-$dbUser = $dbparts['user'] ?? '';
-$dbPass = $dbparts['pass'] ?? '';
-
-// PostgreSQL-এর জন্য DSN-এ sslmode=require যোগ করা হলো
-$dsn = "pgsql:host={$dbHost};port={$dbPort};dbname={$dbName};sslmode=require";
+// রেন্ডার পোস্টগ্রেস ডেটাবেসের ডাইরেক্ট কানেকশন স্ট্রিং
+$dsn = "pgsql:host=dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com;port=5432;dbname=careflow_db_2f4d;sslmode=require";
+$dbUser = "postgres";
+$dbPass = "dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK";
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -29,9 +19,7 @@ $options = [
 try {
     $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
 } catch (PDOException $e) {
-    error_log('[CareFlow DB] Connection failed: ' . $e->getMessage());
     http_response_code(500);
-    // আসল সমস্যাটি স্ক্রিনে দেখতে পাওয়ার জন্য
     exit('Database Error: ' . $e->getMessage());
 }
 
