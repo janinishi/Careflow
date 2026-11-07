@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql
 
-# অ্যাপ্লিকেশনের সব ফাইল অ্যাপাচির ডিফল্ট ফোল্ডারে কপি করা
+# বর্তমান ফোল্ডারের সব ফাইল অ্যাপাচির ডিরেক্টরিতে কপি করা
 COPY . /var/www/html/
 
 # সঠিক পারমিশন সেট করা
