@@ -5,11 +5,13 @@
 
 declare(strict_types=1);
 
-// Render-এর PostgreSQL ডেটাবেস কানেকশন স্টริง
-// (যদি Render ড্যাশবোর্ডে External Database URL থাকে, সেটি এখানে হুবহু বসিয়ে দেবেন)
-$dsn = "pgsql:host=dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com;port=5432;dbname=careflow_db_2f4d;sslmode=require";
-$dbUser = "postgres";
-$dbPass = "dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK";
+$host = "dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com";
+$port = "5432";
+$dbname = "careflow_db_2f4d";
+$username = "postgres";
+$password = "dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK";
+
+$dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require";
 
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -18,10 +20,12 @@ $options = [
 ];
 
 try {
-    $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
+    $pdo = new PDO($dsn, $username, $password, $options);
 } catch (PDOException $e) {
     http_response_code(500);
-    exit('Database Error: ' . $e->getMessage());
+    echo "<h3>Database Connection Error:</h3>";
+    echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+    exit();
 }
 
 return $pdo;
