@@ -1,6 +1,12 @@
 <?php
+/**
+ * CareFlow - Database Connection (PDO - PostgreSQL)
+ */
+
 declare(strict_types=1);
 
+// Render-এর PostgreSQL ডেটাবেস কানেকশন স্টริง
+// (যদি Render ড্যাশবোর্ডে External Database URL থাকে, সেটি এখানে হুবহু বসিয়ে দেবেন)
 $dsn = "pgsql:host=dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com;port=5432;dbname=careflow_db_2f4d;sslmode=require";
 $dbUser = "postgres";
 $dbPass = "dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK";
