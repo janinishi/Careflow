@@ -5,11 +5,12 @@
 
 declare(strict_types=1);
 
-$host = "dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com";
-$port = "5432";
-$dbname = "careflow_db_2f4d";
-$username = "postgres";
-$password = "dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK";
+// Render Environment Variables অথবা ডিফল্ট ফলব্যাক ভ্যালু ব্যবহার করা হয়েছে
+$host = getenv('DB_HOST') ?: "dpg-dbnp6pec6qcc73egh3o0-a.singapore-postgres.render.com";
+$port = getenv('DB_PORT') ?: "5432";
+$dbname = getenv('DB_NAME') ?: "careflow_db_2f4d";
+$username = getenv('DB_USER') ?: "careflow_db_2f4d_user";
+$password = getenv('DB_PASSWORD') ?: "dtam4ZBwHTgrExwO6tMpWT4lyERvKeFK";
 
 $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require";
 
