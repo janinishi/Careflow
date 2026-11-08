@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: careflow
-    env: docker
-    plan: free
-    buildCommand: ""
-    startCommand: ""
