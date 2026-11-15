@@ -1,4 +1,4 @@
-<?>
+<?php
 /**
  * CareFlow - User Registration with Auto-Login & Welcome Guide Redirect
  */
@@ -31,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $pdo->beginTransaction();
 
-                // নতুন ইউজারের ক্ষেত্রে has_seen_guide = 1 সেট করা যাতে প্রথমবার গাইড দেখে ড্যাশবোর্ডে যায়
                 $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role, has_seen_guide) VALUES (?, ?, ?, ?, ?, 1) RETURNING id");
                 $stmt->execute([$fullName, $email, $passwordHash, $phone, $dbRole]);
                 $userId = $stmt->fetchColumn();
@@ -53,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $pdo->commit();
 
-                // সেশন সেট করা
                 session_regenerate_id(true);
                 $_SESSION['user_id']   = $userId;
                 $_SESSION['full_name'] = $fullName;
@@ -62,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 session_write_close();
 
-                // সফল রেজিস্ট্রেশনের পর Welcome Guide পেজে পাঠাবে
                 header('Location: welcome-guide.php');
                 exit;
             }
