@@ -1,6 +1,6 @@
 <?php
 /**
- * CareFlow - User Registration with Auto-Login & Welcome Guide Redirect
+ * CareFlow - User Registration with Auto-Login & Dashboard Redirect
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -26,12 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = 'This email is already registered. Please use another email or login.';
             } else {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
                 $dbRole = ($rawRole === 'donor') ? 'patient' : $rawRole;
 
                 $pdo->beginTransaction();
 
-                $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role, has_seen_guide) VALUES (?, ?, ?, ?, ?, 1) RETURNING id");
+                $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role) VALUES (?, ?, ?, ?, ?) RETURNING id");
                 $stmt->execute([$fullName, $email, $passwordHash, $phone, $dbRole]);
                 $userId = $stmt->fetchColumn();
 
@@ -60,7 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 session_write_close();
 
-                header('Location: welcome-guide.php');
+                // সরাসরি রোল অনুযায়ী ড্যাশবোর্ডে পাঠাবে
+                if ($dbRole === 'admin') {
+                    header('Location: admin-dashboard.php');
+                } elseif ($dbRole === 'doctor') {
+                    header('Location: doctor-dashboard.php');
+                } else {
+                    header('Location: patient-dashboard.php');
+                }
                 exit;
             }
         } catch (Exception $e) {

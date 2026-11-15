@@ -44,6 +44,15 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif; }
+    /* Screenshot 30 এর মতো নিখুঁত হাইলাইট ও বর্ডার স্টাইল */
+    .tour-target-highlight {
+      background-color: #ffffff !important;
+      border: 2px solid #0d9488 !important;
+      box-shadow: 0 0 15px rgba(13, 148, 136, 0.3) !important;
+      border-radius: 12px;
+      position: relative;
+      z-index: 60;
+    }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col md:flex-row">
@@ -55,13 +64,13 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </div>
 
     <nav class="p-4 space-y-1 text-sm font-medium">
-      <a href="patient-dashboard.php" id="menu-dash" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-teal-50 text-teal-700 font-semibold" data-i18n="side.dash">🏠 Dashboard</a>
-      <a href="booking.html" id="menu-book" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.book">📅 Book Appointment</a>
-      <a href="appointments.php" id="menu-appts" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.appts">🗓️ My Appointments</a>
-      <a href="prescription.php" id="menu-presc" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.presc">💊 Prescriptions</a>
-      <a href="blood-donors.php" id="menu-blood" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.blood">🩸 Blood Donors</a>
-      <a href="report-doctor.php" id="menu-report" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.report">🛡️ Report Doctor</a>
-      <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50" data-i18n="side.logout">🚪 Logout</a>
+      <a href="patient-dashboard.php" id="menu-dash" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.dash">🏠 Dashboard</a>
+      <a href="booking.html" id="menu-book" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.book">📅 Book Appointment</a>
+      <a href="appointments.php" id="menu-appts" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.appts">🗓️ My Appointments</a>
+      <a href="prescription.php" id="menu-presc" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.presc">💊 Prescriptions</a>
+      <a href="blood-donors.php" id="menu-blood" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.blood">🩸 Blood Donors</a>
+      <a href="report-doctor.php" id="menu-report" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.report">🛡️ Report Doctor</a>
+      <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition" data-i18n="side.logout">🚪 Logout</a>
     </nav>
   </aside>
 
@@ -180,7 +189,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </main>
   </div>
 
-  <!-- 💡 ১. প্রথম ওয়েলকাম পপ-আপ কার্ড (Screenshot 33 স্টাইল) -->
+  <!-- 💡 ১. প্রথম ওয়েলকাম পপ-আপ কার্ড (Screenshot 33 স্টাইল) -->
   <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-xl w-full rounded-3xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100 text-center relative">
       
@@ -190,22 +199,22 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
 
       <div>
         <h2 class="text-2xl font-bold text-gray-800">স্বাগতম, <?= htmlspecialchars($display_name) ?>!</h2>
-        <p class="text-xs md:text-sm text-gray-500 mt-1">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
+        <p class="text-xs md:text-sm text-gray-500 mt-1">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
       </div>
 
       <!-- ৪টি ফিচারের গ্রিড কার্ড -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
         <div class="p-3.5 bg-teal-50/50 border border-teal-100 rounded-2xl space-y-1">
           <span class="text-xs font-bold text-teal-700">📅 Book Appointment</span>
-          <p class="text-[11px] text-gray-600">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
+          <p class="text-[11px] text-gray-600">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
         </div>
         <div class="p-3.5 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-1">
           <span class="text-xs font-bold text-blue-700">💊 Prescriptions</span>
-          <p class="text-[11px] text-gray-600">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
+          <p class="text-[11px] text-gray-600">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
         </div>
         <div class="p-3.5 bg-red-50/50 border border-red-100 rounded-2xl space-y-1">
           <span class="text-xs font-bold text-red-700">🩸 Blood Donors</span>
-          <p class="text-[11px] text-gray-600">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
+          <p class="text-[11px] text-gray-600">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
         </div>
         <div class="p-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1">
           <span class="text-xs font-bold text-amber-700">🛡️ Report Doctor</span>
@@ -221,7 +230,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </div>
   </div>
 
-  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (Screenshot 48 স্টাইল - প্রথমে হাইড থাকবে) -->
+  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (Screenshot 30/31 স্টাইল) -->
   <div id="liveTourModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl border border-teal-100 max-w-md w-full p-6 space-y-4 relative">
       
@@ -255,7 +264,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       });
     }
 
-    // প্রথম ওয়েলকাম পপ-আপ থেকে "ড্যাশবোর্ড ব্যবহার শুরু করুন" ক্লিক করলে ট্যুর শুরু হবে
+    // প্রথম ওয়েলকাম পপ-আপ থেকে "ড্যাশবোর্ড ব্যবহার শুরু করুন" ক্লিক করলে ট্যুর শুরু হবে
     function startDashboardTour() {
       document.getElementById('welcomeOverlay').style.display = 'none';
       document.getElementById('liveTourModal').classList.remove('hidden');
@@ -294,9 +303,10 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     let currentTourIdx = 0;
 
     function showTourStep(idx) {
+      // আগের সব হাইলাইট মুছে ফেলা
       tourSteps.forEach(step => {
         const el = document.getElementById(step.elementId);
-        if (el) el.classList.remove('ring-4', 'ring-teal-500', 'bg-teal-50');
+        if (el) el.classList.remove('tour-target-highlight');
       });
 
       const current = tourSteps[idx];
@@ -304,9 +314,10 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       document.getElementById('tourTitle').textContent = current.title;
       document.getElementById('tourDesc').textContent = current.desc;
 
+      // বর্তমান অপশনে Screenshot 30 এর মতো হাইলাইট যোগ করা
       const targetEl = document.getElementById(current.elementId);
       if (targetEl) {
-        targetEl.classList.add('ring-4', 'ring-teal-500', 'bg-teal-50');
+        targetEl.classList.add('tour-target-highlight');
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
@@ -330,7 +341,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     function closeLiveTour() {
       tourSteps.forEach(step => {
         const el = document.getElementById(step.elementId);
-        if (el) el.classList.remove('ring-4', 'ring-teal-500', 'bg-teal-50');
+        if (el) el.classList.remove('tour-target-highlight');
       });
       document.getElementById('liveTourModal').style.display = 'none';
     }

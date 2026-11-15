@@ -1,6 +1,6 @@
 <?php
 /**
- * CareFlow - Secure Login Page with First-Time Welcome Check
+ * CareFlow - Secure Login Page
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -34,22 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['role']      = $user['role'] ?? 'patient';
 
                     $role = $user['role'] ?? 'patient';
-                    $has_seen_guide = $user['has_seen_guide'] ?? 0;
 
-                    // প্রথমবার লগইন হলে welcome-guide.php এ পাঠাবে, পরের বার সরাসরি ড্যাশবোর্ডে যাবে
-                    if (empty($has_seen_guide) || $has_seen_guide == 0) {
-                        try {
-                            $update_stmt = $pdo->prepare("UPDATE users SET has_seen_guide = 1 WHERE id = ?");
-                            $update_stmt->execute([$user['id']]);
-                        } catch (Exception $ex) {
-                            // কলাম না থাকলে ইগনোর করবে
-                        }
-
-                        header('Location: welcome-guide.php');
-                        exit;
-                    }
-
-                    // রোল অনুযায়ী সঠিক ড্যাশবোর্ডে রিডাইরেক্ট
+                    // সরাসরি রোল অনুযায়ী ড্যাশবোর্ডে রিডাইরেক্ট করবে
                     if ($role === 'admin') { 
                         header('Location: admin-dashboard.php'); 
                     } elseif ($role === 'doctor') {
