@@ -192,7 +192,35 @@ const TRANSLATIONS = {
     "side.presc": "💊 Prescriptions",
     "side.blood": "🩸 Blood Donors",
     "side.report": "🛡️ Report Doctor",
-    "side.logout": "🚪 Logout"
+    "side.logout": "🚪 Logout",
+
+    /* Welcome Tour & Overlay English */
+    "tour.welcomeTitle": "Welcome, {name}!",
+    "tour.welcomeSub": "Your CareFlow account has been successfully created. See below where to find each feature:",
+    "tour.f1Title": "Book Appointment",
+    "tour.f1Desc": "Book new doctor visits and consultations.",
+    "tour.f2Title": "Prescriptions",
+    "tour.f2Desc": "Access all doctor-issued prescriptions here.",
+    "tour.f3Title": "Blood Donors",
+    "tour.f3Desc": "Find blood donors during urgent needs.",
+    "tour.f4Title": "Report Doctor",
+    "tour.f4Desc": "Submit any complaints or feedback.",
+    "tour.startBtn": "Start Using Dashboard ➔",
+    "tour.skip": "Skip Tour ✕",
+    "tour.back": "← Back",
+    "tour.next": "Next →",
+
+    /* Tour Steps English */
+    "tour.step1.title": "Welcome Dashboard",
+    "tour.step1.desc": "This is your main dashboard where you can check your overall health summary.",
+    "tour.step2.title": "Book Appointment",
+    "tour.step2.desc": "Click here to search specialist doctors and book your online serial.",
+    "tour.step3.title": "My Appointments",
+    "tour.step3.desc": "View all your upcoming and past medical visits and approval statuses.",
+    "tour.step4.title": "Prescriptions",
+    "tour.step4.desc": "Access all doctor-issued prescriptions securely and download anytime.",
+    "tour.step5.title": "Blood Donors",
+    "tour.step5.desc": "Find verified blood donors by blood group during medical emergencies."
   },
   bn: {
     "nav.home": "হোম", "nav.book": "অ্যাপয়েন্টমেন্ট বুকিং", "nav.blood": "রক্তদাতা", "nav.report": "ভুয়া ডাক্তার রিপোর্ট", "nav.login": "লগইন", "nav.register": "রেজিস্ট্রেশন", "nav.dashboard": "ড্যাশবোর্ড",
@@ -387,7 +415,35 @@ const TRANSLATIONS = {
     "side.presc": "💊 প্রেসক্রিপশন",
     "side.blood": "🩸 রক্তদাতা",
     "side.report": "🛡️ রিপোর্ট ডাক্তার",
-    "side.logout": "🚪 লগআউট"
+    "side.logout": "🚪 লগআউট",
+
+    /* Welcome Tour & Overlay Bengali */
+    "tour.welcomeTitle": "স্বাগতম, {name}!",
+    "tour.welcomeSub": "CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:",
+    "tour.f1Title": "Book Appointment",
+    "tour.f1Desc": "নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।",
+    "tour.f2Title": "Prescriptions",
+    "tour.f2Desc": "ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।",
+    "tour.f3Title": "Blood Donors",
+    "tour.f3Desc": "জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।",
+    "tour.f4Title": "Report Doctor",
+    "tour.f4Desc": "কোনো অভিযোগ বা মতামত জানানোর জন্য।",
+    "tour.startBtn": "ড্যাশবোর্ড ব্যবহার শুরু করুন ➔",
+    "tour.skip": "Skip Tour ✕",
+    "tour.back": "← Back",
+    "tour.next": "Next →",
+
+    /* Tour Steps Bengali */
+    "tour.step1.title": "ড্যাশবোর্ড ওভারভিউ",
+    "tour.step1.desc": "এটি আপনার হোম পেজ। এখান থেকে আপনার সামগ্রিক হেলথ অ্যাক্টিভিটি ও পরিসংখ্যান দেখতে পাবেন।",
+    "tour.step2.title": "বুক অ্যাপয়েন্টমেন্ট",
+    "tour.step2.desc": "এই অপশনে ক্লিক করে বিশেষজ্ঞ ডাক্তারদের তালিকা দেখে নতুন সিরিয়াল বুক করতে পারবেন।",
+    "tour.step3.title": "আমার অ্যাপয়েন্টমেন্টসমূহ",
+    "tour.step3.desc": "আপনার আপকামিং ও পূর্ববর্তী সমস্ত ভিজিট এবং সেগুলোর স্ট্যাটাস এখান থেকে চেক করতে পারবেন।",
+    "tour.step4.title": "ডিজিটাল প্রেসক্রিপশন",
+    "tour.step4.desc": "ডাক্তারদের দেওয়া সমস্ত প্রেসক্রিপশন এখানে সুরক্ষিত থাকে, যা যেকোনো সময় দেখতে বা ডাউনলোড করতে পারবেন।",
+    "tour.step5.title": "জরুরি ব্লাড ডোনারস",
+    "tour.step5.desc": "জরুরি প্রয়োজনে রক্তের গ্রুপ অনুযায়ী ডোনারদের তালিকা খুঁজে সরাসরি যোগাযোগ করতে পারবেন।"
   }
 };
 
@@ -424,6 +480,12 @@ function applyTranslations() {
   }
 
   document.documentElement.lang = currentLang;
+  
+  // Update tour texts dynamically if tour function exists
+  if (typeof updateTourLanguage === 'function') {
+    updateTourLanguage();
+  }
+
   document.dispatchEvent(new CustomEvent("langchange", { detail: { lang: currentLang } }));
 }
 

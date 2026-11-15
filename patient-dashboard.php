@@ -1,6 +1,6 @@
 <?php
 /**
- * CareFlow - Dynamic Patient Dashboard with Welcome Tour
+ * CareFlow - Dynamic Patient Dashboard with Welcome Tour & i18n Support
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -8,13 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/db.php';
 
-// যদি লগইন করা না থাকে, তবে লগইন পেজে রিডাইরেক্ট করবে
 if (empty($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
 
-// সেশন বা ডাটাবেস থেকে ইউজারের আসল নাম নিশ্চিত করা
 $display_name = $_SESSION['full_name'] ?? $_SESSION['name'] ?? 'Patient';
 
 if (!empty($_SESSION['user_id'])) {
@@ -25,12 +23,9 @@ if (!empty($_SESSION['user_id'])) {
         if ($user) {
             $display_name = $user['full_name'] ?? $user['name'] ?? $display_name;
         }
-    } catch (Exception $e) {
-        // Fallback to session name
-    }
+    } catch (Exception $e) {}
 }
 
-// নামের প্রথম অক্ষর (Avatar-এর জন্য)
 $first_letter = strtoupper(mb_substr($display_name, 0, 1));
 ?>
 <!DOCTYPE html>
@@ -44,7 +39,6 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif; }
-    /* Screenshot 30 এর মতো নিখুঁত হাইলাইট ও বর্ডার স্টাইল */
     .tour-target-highlight {
       background-color: #ffffff !important;
       border: 2px solid #0d9488 !important;
@@ -77,20 +71,17 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   <!-- Main Area -->
   <div class="flex-1 flex flex-col min-w-0">
 
-    <!-- Header (z-index বাড়িয়ে দেওয়া হয়েছে যাতে বাংলা বাটন পপআপের ওপরে থাকে এবং কাজ করে) -->
+    <!-- Header -->
     <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-[70]">
       <div class="flex items-center gap-3">
         <button id="menu-btn" type="button" class="md:hidden text-2xl text-gray-700 p-1">☰</button>
         <h1 class="text-xl font-bold text-gray-800" data-i18n="dash.h1">Patient Dashboard</h1>
       </div>
       <div class="flex items-center gap-3">
-        <!-- বাংলা বাটন সম্পূর্ণ সচল রাখা হয়েছে -->
         <button type="button" id="lang-btn" onclick="toggleLang()" class="px-3 py-1.5 text-sm font-medium border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition cursor-pointer">
           বাংলা
         </button>
-        <!-- ডাইনামিক ইউজারের নাম -->
         <span class="hidden sm:block text-sm text-gray-600 font-medium"><span data-i18n="hello.txt">Hello</span>, <strong class="text-gray-900"><?= htmlspecialchars($display_name) ?></strong></span>
-        <!-- ডাইনামিক অবতারের প্রথম অক্ষর -->
         <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold">
           <?= htmlspecialchars($first_letter) ?>
         </div>
@@ -99,8 +90,6 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
 
     <!-- Main Content -->
     <main class="p-4 md:p-8 space-y-8 flex-1">
-
-      <!-- Welcome Banner -->
       <div>
         <h2 class="text-2xl font-bold text-gray-900"><span data-i18n="dash.welcomePrefix">Welcome back</span>, <?= htmlspecialchars($display_name) ?> 👋</h2>
         <p class="text-gray-600 text-sm mt-1" data-i18n="dash.sub">Here is a quick look at your health activity.</p>
@@ -148,7 +137,6 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
           <h3 class="font-bold text-lg text-gray-800" data-i18n="mh.h">Medical History</h3>
           <a href="prescription.php" class="text-sm font-medium text-teal-600 hover:underline" data-i18n="mh.viewAll">View all</a>
         </div>
-
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-semibold">
@@ -168,76 +156,53 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
                 <td class="px-6 py-4 text-gray-600" data-i18n="med.amlodipine">Amlodipine 5mg</td>
                 <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700" data-i18n="status.completed">Completed</span></td>
               </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">28 Sep 2026</td>
-                <td class="px-6 py-4 text-gray-900 font-semibold" data-i18n="doc.karimH">Dr. Karim Hossain</td>
-                <td class="px-6 py-4 text-gray-600" data-i18n="diag.flu">Seasonal Flu</td>
-                <td class="px-6 py-4 text-gray-600" data-i18n="med.paracetamol">Paracetamol 500mg</td>
-                <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700" data-i18n="status.completed">Completed</span></td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">25 Oct 2026</td>
-                <td class="px-6 py-4 text-gray-900 font-semibold" data-i18n="doc.anika">Dr. Anika Rahman</td>
-                <td class="px-6 py-4 text-gray-600" data-i18n="diag.routine">Routine Checkup & Followup</td>
-                <td class="px-6 py-4 text-gray-400" data-i18n="status.pendingApproval">Pending Approval</td>
-                <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700" data-i18n="status.pending">Pending</span></td>
-              </tr>
             </tbody>
           </table>
         </div>
       </section>
-
     </main>
   </div>
 
-  <!-- 💡 ১. প্রথম ওয়েলকাম পপ-আপ কার্ড (Screenshot 33 স্টাইল) -->
+  <!-- 💡 ১. প্রথম ওয়েলকাম পপ-আপ কার্ড -->
   <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-xl w-full rounded-3xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100 text-center relative">
-      
-      <div class="w-16 h-16 mx-auto bg-amber-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
-        🎉
-      </div>
-
+      <div class="w-16 h-16 mx-auto bg-amber-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">🎉</div>
       <div>
-        <h2 class="text-2xl font-bold text-gray-800">স্বাগতম, <?= htmlspecialchars($display_name) ?>!</h2>
-        <p class="text-xs md:text-sm text-gray-500 mt-1">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
+        <h2 class="text-2xl font-bold text-gray-800" data-i18n="tour.welcomeTitle" data-i18n-vars='{"name": "<?= htmlspecialchars($display_name) ?>"}'>স্বাগতম, <?= htmlspecialchars($display_name) ?>!</h2>
+        <p class="text-xs md:text-sm text-gray-500 mt-1" data-i18n="tour.welcomeSub">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
       </div>
 
-      <!-- ৪টি ফিচারের গ্রিড কার্ড -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
         <div class="p-3.5 bg-teal-50/50 border border-teal-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-teal-700">📅 Book Appointment</span>
-          <p class="text-[11px] text-gray-600">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
+          <span class="text-xs font-bold text-teal-700" data-i18n="tour.f1Title">📅 Book Appointment</span>
+          <p class="text-[11px] text-gray-600" data-i18n="tour.f1Desc">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
         </div>
         <div class="p-3.5 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-blue-700">💊 Prescriptions</span>
-          <p class="text-[11px] text-gray-600">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
+          <span class="text-xs font-bold text-blue-700" data-i18n="tour.f2Title">💊 Prescriptions</span>
+          <p class="text-[11px] text-gray-600" data-i18n="tour.f2Desc">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
         </div>
         <div class="p-3.5 bg-red-50/50 border border-red-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-red-700">🩸 Blood Donors</span>
-          <p class="text-[11px] text-gray-600">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
+          <span class="text-xs font-bold text-red-700" data-i18n="tour.f3Title">🩸 Blood Donors</span>
+          <p class="text-[11px] text-gray-600" data-i18n="tour.f3Desc">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
         </div>
         <div class="p-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-amber-700">🛡️ Report Doctor</span>
-          <p class="text-[11px] text-gray-600">কোনো অভিযোগ বা মতামত জানানোর জন্য।</p>
+          <span class="text-xs font-bold text-amber-700" data-i18n="tour.f4Title">🛡️ Report Doctor</span>
+          <p class="text-[11px] text-gray-600" data-i18n="tour.f4Desc">কোনো অভিযোগ বা মতামত জানানোর জন্য।</p>
         </div>
       </div>
 
-      <!-- ড্যাশবোর্ড শুরু করার বাটন -->
-      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2 cursor-pointer">
+      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2 cursor-pointer" data-i18n="tour.startBtn">
         ড্যাশবোর্ড ব্যবহার শুরু করুন ➔
       </button>
-
     </div>
   </div>
 
-  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (Screenshot 30/31 স্টাইল) -->
+  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ -->
   <div id="liveTourModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl border border-teal-100 max-w-md w-full p-6 space-y-4 relative">
-      
       <div class="flex items-center justify-between border-b pb-3">
         <span id="tourStepIndicator" class="text-xs font-bold px-3 py-1 bg-teal-50 text-teal-700 rounded-full">Step 1 of 5</span>
-        <button onclick="closeLiveTour()" class="text-xs text-gray-400 hover:text-gray-600 font-medium cursor-pointer">Skip Tour ✕</button>
+        <button onclick="closeLiveTour()" class="text-xs text-gray-400 hover:text-gray-600 font-medium cursor-pointer" data-i18n="tour.skip">Skip Tour ✕</button>
       </div>
       
       <div class="space-y-2 py-2">
@@ -246,17 +211,15 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       </div>
 
       <div class="flex items-center justify-between pt-3 border-t">
-        <button onclick="prevTourStep()" class="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-200 transition cursor-pointer">← Back</button>
-        <button onclick="nextTourStep()" class="px-5 py-2 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 transition shadow-sm cursor-pointer">Next →</button>
+        <button onclick="prevTourStep()" id="tourPrevBtn" class="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-200 transition cursor-pointer" data-i18n="tour.back">← Back</button>
+        <button onclick="nextTourStep()" id="tourNextBtn" class="px-5 py-2 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 transition shadow-sm cursor-pointer" data-i18n="tour.next">Next →</button>
       </div>
-
     </div>
   </div>
 
   <script src="i18n.js"></script>
 
   <script>
-    // Sidebar Toggle
     const menuBtn = document.getElementById('menu-btn');
     const sidebar = document.getElementById('sidebar');
     if (menuBtn && sidebar) {
@@ -265,46 +228,23 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       });
     }
 
-    // প্রথম ওয়েলকাম পপ-আপ থেকে "ড্যাশবোর্ড ব্যবহার শুরু করুন" ক্লিক করলে ট্যুর শুরু হবে
     function startDashboardTour() {
       document.getElementById('welcomeOverlay').style.display = 'none';
       document.getElementById('liveTourModal').classList.remove('hidden');
       showTourStep(0);
     }
 
-    // ড্যাশবোর্ড ট্যুর স্টেপস এবং মেনু আইডি ম্যাপিং
     const tourSteps = [
-      {
-        elementId: 'menu-dash',
-        title: 'Welcome Dashboard',
-        desc: 'This is your main dashboard where you can check your overall health summary.'
-      },
-      {
-        elementId: 'menu-book',
-        title: 'Book Appointment',
-        desc: 'Click here to search specialist doctors and book your online serial.'
-      },
-      {
-        elementId: 'menu-appts',
-        title: 'My Appointments',
-        desc: 'View all your upcoming and past medical visits and approval statuses.'
-      },
-      {
-        elementId: 'menu-presc',
-        title: 'Prescriptions',
-        desc: 'Access all doctor-issued prescriptions securely and download anytime.'
-      },
-      {
-        elementId: 'menu-blood',
-        title: 'Blood Donors',
-        desc: 'Find verified blood donors by blood group during medical emergencies.'
-      }
+      { elementId: 'menu-dash', titleKey: 'tour.step1.title', descKey: 'tour.step1.desc' },
+      { elementId: 'menu-book', titleKey: 'tour.step2.title', descKey: 'tour.step2.desc' },
+      { elementId: 'menu-appts', titleKey: 'tour.step3.title', descKey: 'tour.step3.desc' },
+      { elementId: 'menu-presc', titleKey: 'tour.step4.title', descKey: 'tour.step4.desc' },
+      { elementId: 'menu-blood', titleKey: 'tour.step5.title', descKey: 'tour.step5.desc' }
     ];
 
     let currentTourIdx = 0;
 
     function showTourStep(idx) {
-      // আগের সব হাইলাইট মুছে ফেলা
       tourSteps.forEach(step => {
         const el = document.getElementById(step.elementId);
         if (el) el.classList.remove('tour-target-highlight');
@@ -312,14 +252,19 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
 
       const current = tourSteps[idx];
       document.getElementById('tourStepIndicator').textContent = `Step ${idx + 1} of ${tourSteps.length}`;
-      document.getElementById('tourTitle').textContent = current.title;
-      document.getElementById('tourDesc').textContent = current.desc;
+      document.getElementById('tourTitle').textContent = t(current.titleKey);
+      document.getElementById('tourDesc').textContent = t(current.descKey);
 
-      // বর্তমান অপশনে Screenshot 30 এর মতো হাইলাইট যোগ করা
       const targetEl = document.getElementById(current.elementId);
       if (targetEl) {
         targetEl.classList.add('tour-target-highlight');
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function updateTourLanguage() {
+      if (document.getElementById('liveTourModal').style.display !== 'flex' && !document.getElementById('liveTourModal').classList.contains('hidden')) {
+        showTourStep(currentTourIdx);
       }
     }
 
