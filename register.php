@@ -1,6 +1,6 @@
 <?php
 /**
- * CareFlow - User Registration with Auto-Login & Tour Trigger
+ * CareFlow - User Registration with Auto-Login & Welcome Guide Redirect
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $phone    = trim($_POST['phone'] ?? '');
-    $role     = $_POST['role'] ?? 'patient';
+    $rawRole  = $_POST['role'] ?? 'patient';
 
     if (empty($fullName) || empty($email) || empty($password)) {
         $message = 'Please fill in all required fields.';
@@ -27,32 +27,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
+                // PostgreSQL এর users টেবিলের CHECK constraint অনুযায়ী রোল নির্ধারণ
+                $dbRole = ($rawRole === 'donor') ? 'patient' : $rawRole;
+
                 $pdo->beginTransaction();
 
-                $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$fullName, $email, $passwordHash, $phone, $role]);
-                $userId = $pdo->lastInsertId();
+                // PostgreSQL-এ সঠিকভাবে নতুন user ID পাওয়ার জন্য RETURNING id ব্যবহার
+                $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role) VALUES (?, ?, ?, ?, ?) RETURNING id");
+                $stmt->execute([$fullName, $email, $passwordHash, $phone, $dbRole]);
+                $userId = $stmt->fetchColumn();
 
-                if ($role === 'patient') {
+                if ($dbRole === 'patient') {
                     $stmt = $pdo->prepare("INSERT INTO patients (user_id) VALUES (?)");
                     $stmt->execute([$userId]);
-                } elseif ($role === 'doctor') {
+                } elseif ($dbRole === 'doctor') {
                     $spec = $_POST['specialization'] ?? 'General Medicine';
                     $bmdc = $_POST['bmdc_reg_no'] ?? 'BMDC-' . rand(1000, 9999);
                     $stmt = $pdo->prepare("INSERT INTO doctors (user_id, specialization, bmdc_reg_no) VALUES (?, ?, ?)");
                     $stmt->execute([$userId, $spec, $bmdc]);
                 }
 
+                // কেউ Blood Donor হিসেবে রেজিস্টার করলে blood_donors টেবিলেও যুক্ত হবে
+                if ($rawRole === 'donor') {
+                    $stmt = $pdo->prepare("INSERT INTO blood_donors (user_id, donor_name, blood_group, phone, district) VALUES (?, ?, 'O+', ?, 'Dinajpur')");
+                    $stmt->execute([$userId, $fullName, $phone ?: 'N/A']);
+                }
+
                 $pdo->commit();
 
-                $_SESSION = array(); 
+                // সেশন সেট করা
+                session_regenerate_id(true);
                 $_SESSION['user_id']   = $userId;
                 $_SESSION['full_name'] = $fullName;
                 $_SESSION['email']     = $email;
-                $_SESSION['role']      = $role;
+                $_SESSION['role']      = $dbRole;
 
-                // নতুন রেজিস্ট্রেশনের পর ট্যুরের জন্য tour=1 ফ্ল্যাগসহ রিডাইরেক্ট করবে
-                header('Location: patient-dashboard.php?tour=1');
+                session_write_close();
+
+                // সফল রেজিস্ট্রেশনের পর সরাসরি Welcome Guide পেজে পাঠাবে
+                header('Location: welcome.php');
                 exit;
             }
         } catch (Exception $e) {
