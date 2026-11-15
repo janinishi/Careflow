@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-                // PostgreSQL এর users টেবিলের CHECK constraint অনুযায়ী রোল নির্ধারণ
+                // PostgreSQL এর users টেবিলের CHECK constraint অনুযায়ী রোল নির্ধারণ
                 $dbRole = ($rawRole === 'donor') ? 'patient' : $rawRole;
 
                 $pdo->beginTransaction();
 
-                // PostgreSQL-এ সঠিকভাবে নতুন user ID পাওয়ার জন্য RETURNING id ব্যবহার
+                // PostgreSQL-এ সঠিকভাবে নতুন user ID পাওয়ার জন্য RETURNING id ব্যবহার
                 $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role) VALUES (?, ?, ?, ?, ?) RETURNING id");
                 $stmt->execute([$fullName, $email, $passwordHash, $phone, $dbRole]);
                 $userId = $stmt->fetchColumn();
@@ -64,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 session_write_close();
 
-                // সফল রেজিস্ট্রেশনের পর সরাসরি Welcome Guide পেজে পাঠাবে
-                header('Location: welcome.php');
+                // সফল রেজিস্ট্রেশনের পর সঠিক Welcome Guide পেজে পাঠাবে
+                header('Location: welcome-guide.php');
                 exit;
             }
         } catch (Exception $e) {
