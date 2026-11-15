@@ -1,6 +1,6 @@
 <?php
 /**
- * CareFlow - Dynamic Patient Dashboard
+ * CareFlow - Patient Dashboard with In-Page Auto Tour Guide
  */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -8,13 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/db.php';
 
-// যদি লগইন করা না থাকে, তবে লগইন পেজে রিডাইরেক্ট করবে
 if (empty($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
 
-// সেশন বা ডাটাবেস থেকে ইউজারের আসল নাম নিশ্চিত করা
 $display_name = $_SESSION['full_name'] ?? $_SESSION['name'] ?? 'Patient';
 
 if (!empty($_SESSION['user_id'])) {
@@ -25,12 +23,9 @@ if (!empty($_SESSION['user_id'])) {
         if ($user) {
             $display_name = $user['full_name'] ?? $user['name'] ?? $display_name;
         }
-    } catch (Exception $e) {
-        // Fallback to session name
-    }
+    } catch (Exception $e) {}
 }
 
-// নামের প্রথম অক্ষর (Avatar-এর জন্য)
 $first_letter = strtoupper(mb_substr($display_name, 0, 1));
 ?>
 <!DOCTYPE html>
@@ -44,6 +39,12 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif; }
+    /* মেনু হাইলাইট করার জন্য পালস ইফেক্ট */
+    .tour-highlight {
+      ring: 4px solid #0d9488 !important;
+      background-color: #ccfbf1 !important;
+      transition: all 0.3s ease;
+    }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col md:flex-row">
@@ -55,13 +56,13 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </div>
 
     <nav class="p-4 space-y-1 text-sm font-medium">
-      <a href="patient-dashboard.php" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-teal-50 text-teal-700 font-semibold" data-i18n="side.dash">🏠 Dashboard</a>
-      <a href="booking.html" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.book">📅 Book Appointment</a>
-      <a href="appointments.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.appts">🗓️ My Appointments</a>
-      <a href="prescription.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.presc">💊 Prescriptions</a>
-      <a href="blood-donors.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.blood">🩸 Blood Donors</a>
-      <a href="report-doctor.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.report">🛡️ Report Doctor</a>
-      <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50" data-i18n="side.logout">🚪 Logout</a>
+      <a href="patient-dashboard.php" id="menu-dash" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-teal-50 text-teal-700 font-semibold transition" data-i18n="side.dash">🏠 Dashboard</a>
+      <a href="booking.html" id="menu-book" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.book">📅 Book Appointment</a>
+      <a href="appointments.php" id="menu-appts" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.appts">🗓️ My Appointments</a>
+      <a href="prescription.php" id="menu-presc" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.presc">💊 Prescriptions</a>
+      <a href="blood-donors.php" id="menu-blood" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.blood">🩸 Blood Donors</a>
+      <a href="report-doctor.php" id="menu-report" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.report">🛡️ Report Doctor</a>
+      <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition" data-i18n="side.logout">🚪 Logout</a>
     </nav>
   </aside>
 
@@ -78,9 +79,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
         <button type="button" id="lang-btn" onclick="toggleLang()" class="px-3 py-1.5 text-sm font-medium border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition">
           বাংলা
         </button>
-        <!-- ডাইনামিক ইউজারের নাম -->
         <span class="hidden sm:block text-sm text-gray-600 font-medium"><span data-i18n="hello.txt">Hello</span>, <strong class="text-gray-900"><?= htmlspecialchars($display_name) ?></strong></span>
-        <!-- ডাইনামিক অবতারের প্রথম অক্ষর -->
         <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold">
           <?= htmlspecialchars($first_letter) ?>
         </div>
@@ -180,6 +179,25 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </main>
   </div>
 
+  <!-- 💡 অটো-পপআপ ট্যুর গাইড বক্স (ড্যাশবোর্ডের ডিজাইনের ওপর ভাসমান থাকবে) -->
+  <div id="liveTourModal" class="fixed bottom-6 right-6 z-50 bg-white rounded-2xl shadow-2xl border border-teal-200 max-w-sm w-full p-5 space-y-3 transition-all duration-300">
+    <div class="flex items-center justify-between border-b pb-2">
+      <span id="tourStepIndicator" class="text-xs font-bold px-2.5 py-0.5 bg-teal-50 text-teal-700 rounded-full">Step 1 of 5</span>
+      <button onclick="closeLiveTour()" class="text-xs text-gray-400 hover:text-gray-600 font-medium">Skip Tour ✕</button>
+    </div>
+    
+    <div class="space-y-1.5">
+      <h4 id="tourTitle" class="font-bold text-gray-800 text-base">Dashboard Overview</h4>
+      <p id="tourDesc" class="text-xs text-gray-600 leading-relaxed"></p>
+    </div>
+
+    <div class="flex items-center justify-between pt-2 border-t">
+      <button onclick="prevTourStep()" class="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-200">← Back</button>
+      <button id="tourPauseBtn" onclick="toggleTourPause()" class="px-3 py-1 bg-teal-50 text-teal-700 text-xs font-semibold rounded-lg hover:bg-teal-100">⏸ Pause</button>
+      <button onclick="nextTourStep()" class="px-4 py-1 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700">Next →</button>
+    </div>
+  </div>
+
   <script src="i18n.js"></script>
 
   <script>
@@ -191,6 +209,94 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
         sidebar.classList.toggle('hidden');
       });
     }
+
+    // লাইভ ড্যাশবোর্ড ট্যুর স্টেপস এবং মেনু আইডি ম্যাপিং
+    const tourSteps = [
+      {
+        elementId: 'menu-dash',
+        title: '🏠 ড্যাশবোর্ড ওভারভিউ',
+        desc: 'এটি আপনার হোম পেজ। এখান থেকে আপনার সামগ্রিক হেলথ অ্যাক্টিভিটি ও পরিসংখ্যান দেখতে পাবেন।'
+      },
+      {
+        elementId: 'menu-book',
+        title: '📅 বুক অ্যাপয়েন্টমেন্ট',
+        desc: 'এই অপশনে ক্লিক করে বিশেষজ্ঞ ডাক্তারদের তালিকা দেখে নতুন সিরিয়াল বুক করতে পারবেন।'
+      },
+      {
+        elementId: 'menu-appts',
+        title: '🗓️ আমার অ্যাপয়েন্টমেন্টসমূহ',
+        desc: 'আপনার আপকামিং ও পূর্ববর্তী সমস্ত ভিজিট এবং সেগুলোর স্ট্যাটাস এখান থেকে চেক করতে পারবেন।'
+      },
+      {
+        elementId: 'menu-presc',
+        title: '💊 ডিজিটাল প্রেসক্রিপশন',
+        desc: 'ডাক্তারদের দেওয়া সমস্ত প্রেসক্রিপশন এখানে সুরক্ষিত থাকে, যা যেকোনো সময় দেখতে বা ডাউনলোড করতে পারবেন।'
+      },
+      {
+        elementId: 'menu-blood',
+        title: '🩸 জরুরি ব্লাড ডোনারস',
+        desc: 'জরুরি প্রয়োজনে রক্তের গ্রুপ অনুযায়ী ডোনারদের তালিকা খুঁজে সরাসরি যোগাযোগ করতে পারবেন।'
+      }
+    ];
+
+    let currentTourIdx = 0;
+    let tourInterval = null;
+    let isPaused = false;
+
+    function showTourStep(idx) {
+      // আগের হাইলাইট রিমোভ করা
+      tourSteps.forEach(step => {
+        const el = document.getElementById(step.elementId);
+        if (el) el.classList.remove('tour-highlight');
+      });
+
+      const current = tourSteps[idx];
+      document.getElementById('tourStepIndicator').textContent = `Step ${idx + 1} of ${tourSteps.length}`;
+      document.getElementById('tourTitle').textContent = current.title;
+      document.getElementById('tourDesc').textContent = current.desc;
+
+      // বর্তমান মেনু আইটেমটি হাইলাইট করা
+      const targetEl = document.getElementById(current.elementId);
+      if (targetEl) {
+        targetEl.classList.add('tour-highlight');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function nextTourStep() {
+      currentTourIdx = (currentTourIdx + 1) % tourSteps.length;
+      showTourStep(currentTourIdx);
+    }
+
+    function prevTourStep() {
+      currentTourIdx = (currentTourIdx - 1 + tourSteps.length) % tourSteps.length;
+      showTourStep(currentTourIdx);
+    }
+
+    function toggleTourPause() {
+      isPaused = !isPaused;
+      const btn = document.getElementById('tourPauseBtn');
+      if (isPaused) {
+        clearInterval(tourInterval);
+        btn.textContent = '▶ Resume';
+      } else {
+        tourInterval = setInterval(nextTourStep, 4000);
+        btn.textContent = '⏸ Pause';
+      }
+    }
+
+    function closeLiveTour() {
+      clearInterval(tourInterval);
+      tourSteps.forEach(step => {
+        const el = document.getElementById(step.elementId);
+        if (el) el.classList.remove('tour-highlight');
+      });
+      document.getElementById('liveTourModal').style.display = 'none';
+    }
+
+    // অটো-প্লে শুরু করা (প্রতি ৪ সেকেন্ডে এক ধাপ এগোবে)
+    showTourStep(0);
+    tourInterval = setInterval(nextTourStep, 4000);
   </script>
 </body>
 </html>
