@@ -220,7 +220,9 @@ const TRANSLATIONS = {
     "tour.step4.title": "Prescriptions",
     "tour.step4.desc": "Access all doctor-issued prescriptions securely and download anytime.",
     "tour.step5.title": "Blood Donors",
-    "tour.step5.desc": "Find verified blood donors by blood group during medical emergencies."
+    "tour.step5.desc": "Find verified blood donors by blood group during medical emergencies.",
+    "tour.step6.title": "Report Doctor",
+    "tour.step6.desc": "Help keep patients safe by reporting suspicious or unverified practitioners."
   },
   bn: {
     "nav.home": "হোম", "nav.book": "অ্যাপয়েন্টমেন্ট বুকিং", "nav.blood": "রক্তদাতা", "nav.report": "ভুয়া ডাক্তার রিপোর্ট", "nav.login": "লগইন", "nav.register": "রেজিস্ট্রেশন", "nav.dashboard": "ড্যাশবোর্ড",
@@ -441,9 +443,11 @@ const TRANSLATIONS = {
     "tour.step3.title": "আমার অ্যাপয়েন্টমেন্টসমূহ",
     "tour.step3.desc": "আপনার আপকামিং ও পূর্ববর্তী সমস্ত ভিজিট এবং সেগুলোর স্ট্যাটাস এখান থেকে চেক করতে পারবেন।",
     "tour.step4.title": "ডিজিটাল প্রেসক্রিপশন",
-    "tour.step4.desc": "ডাক্তারদের দেওয়া সমস্ত প্রেসক্রিপশন এখানে সুরক্ষিত থাকে, যা যেকোনো সময় দেখতে বা ডাউনলোড করতে পারবেন।",
+    "tour.step4.desc": "ডাক্তারদের দেওয়া সমস্ত প্রেসক্রিপশন এখানে সুরক্ষিত থাকে, যা যেকোনো সময় দেখতে বা ডাউনলোড করতে পারবেন।",
     "tour.step5.title": "জরুরি ব্লাড ডোনারস",
-    "tour.step5.desc": "জরুরি প্রয়োজনে রক্তের গ্রুপ অনুযায়ী ডোনারদের তালিকা খুঁজে সরাসরি যোগাযোগ করতে পারবেন।"
+    "tour.step5.desc": "জরুরি প্রয়োজনে রক্তের গ্রুপ অনুযায়ী ডোনারদের তালিকা খুঁজে সরাসরি যোগাযোগ করতে পারবেন।",
+    "tour.step6.title": "রিপোর্ট ডাক্তার",
+    "tour.step6.desc": "সন্দেহজনক বা ভুয়া চিকিৎসকদের রিপোর্ট করে রোগীদের নিরাপদ রাখতে সাহায্য করুন।"
   }
 };
 
