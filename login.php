@@ -10,37 +10,33 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $password =$_POST['password'] ?? '';
 
-    if (empty($email) || empty($password)) {
-        $error = 'Please enter both email and password.';
+    if (empty($email) || empty($password)) {$error = 'Please enter both email and password.';
     } else {
         try {
             $pdo = require __DIR__ . '/db.php';
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt =$pdo->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$email]);
-            $user = $stmt->fetch();
+            $user =$stmt->fetch();
 
-            if ($user) {
-                $db_pass = $user['password_hash'] ?? $user['password'] ?? '';
+            if ($user) {$db_pass = $user['password_hash'] ?? $user['password'] ?? '';
 
-                if ($password === $db_pass || password_verify($password, $db_pass)) {
+                if ($password ===$db_pass || password_verify($password,$db_pass)) {
                     // পুরনো সেশন পরিষ্কার করে নতুন সেশন সেট করা
                     $_SESSION = array();
 
-                    $_SESSION['user_id']   = $user['id'];
-                    $_SESSION['full_name'] = $user['full_name'] ?? $user['name'] ?? 'User'; 
-                    $_SESSION['email']     = $user['email'];
-                    $_SESSION['role']      = $user['role'] ?? 'patient';
+                    $_SESSION['user_id']   = $user['id'];$_SESSION['full_name'] = $user['full_name'] ?? $user['name'] ?? 'User'; 
+                    $_SESSION['email']     =$user['email'];
+                    $_SESSION['role']      =$user['role'] ?? 'patient';
 
-                    $role = $user['role'] ?? 'patient';
-                    $has_seen_guide = $user['has_seen_guide'] ?? 0;
+                    $role =$user['role'] ?? 'patient';
+                    $has_seen_guide =$user['has_seen_guide'] ?? 0;
 
                     // 💡 প্রথমবার লগইন হলে welcome-guide.php এ পাঠাবে, পরের বার সরাসরি ড্যাশবোর্ডে যাবে
-                    if (empty($has_seen_guide) || $has_seen_guide == 0) {
-                        // ডেটাবেসে আপডেট করে দেওয়া যাতে পরবর্তীতে আর গাইড না দেখায়
+                    if (empty($has_seen_guide) \vert{}\vert{}$has_seen_guide == 0) {
                         try {
-                            $update_stmt = $pdo->prepare("UPDATE users SET has_seen_guide = 1 WHERE id = ?");
+                            $update_stmt =$pdo->prepare("UPDATE users SET has_seen_guide = 1 WHERE id = ?");
                             $update_stmt->execute([$user['id']]);
                         } catch (Exception $ex) {
                             // কলাম না থাকলে ইগনোর করবে
@@ -51,9 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     // রোল অনুযায়ী সঠিক ড্যাশবোর্ডে রিডাইরেক্ট
-                    if ($role === 'admin') { 
-                        header('Location: admin-dashboard.php'); 
-                    } elseif ($role === 'doctor') {
+                    if ($role === 'admin') { header('Location: admin-dashboard.php'); } elseif ($role === 'doctor') {
                         header('Location: doctor-dashboard.php');
                     } else {
                         header('Location: patient-dashboard.php');
@@ -66,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'No account found with this email.';
             }
         } catch (Exception $e) {
-            $error = 'Database error: ' . $e->getMessage();
+            $error = 'Database error: ' .$e->getMessage();
         }
     }
 }

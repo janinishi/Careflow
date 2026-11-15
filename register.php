@@ -1,4 +1,4 @@
-<?php
+<?>
 /**
  * CareFlow - User Registration with Auto-Login & Welcome Guide Redirect
  */
@@ -27,13 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-                // PostgreSQL এর users টেবিলের CHECK constraint অনুযায়ী রোল নির্ধারণ
                 $dbRole = ($rawRole === 'donor') ? 'patient' : $rawRole;
 
                 $pdo->beginTransaction();
 
-                // PostgreSQL-এ সঠিকভাবে নতুন user ID পাওয়ার জন্য RETURNING id ব্যবহার
-                $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role) VALUES (?, ?, ?, ?, ?) RETURNING id");
+                // নতুন ইউজারের ক্ষেত্রে has_seen_guide = 1 সেট করা যাতে প্রথমবার গাইড দেখে ড্যাশবোর্ডে যায়
+                $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, phone, role, has_seen_guide) VALUES (?, ?, ?, ?, ?, 1) RETURNING id");
                 $stmt->execute([$fullName, $email, $passwordHash, $phone, $dbRole]);
                 $userId = $stmt->fetchColumn();
 
@@ -47,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$userId, $spec, $bmdc]);
                 }
 
-                // কেউ Blood Donor হিসেবে রেজিস্টার করলে blood_donors টেবিলেও যুক্ত হবে
                 if ($rawRole === 'donor') {
                     $stmt = $pdo->prepare("INSERT INTO blood_donors (user_id, donor_name, blood_group, phone, district) VALUES (?, ?, 'O+', ?, 'Dinajpur')");
                     $stmt->execute([$userId, $fullName, $phone ?: 'N/A']);
@@ -64,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 session_write_close();
 
-                // সফল রেজিস্ট্রেশনের পর সঠিক Welcome Guide পেজে পাঠাবে
+                // সফল রেজিস্ট্রেশনের পর Welcome Guide পেজে পাঠাবে
                 header('Location: welcome-guide.php');
                 exit;
             }
