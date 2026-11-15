@@ -77,14 +77,15 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   <!-- Main Area -->
   <div class="flex-1 flex flex-col min-w-0">
 
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+    <!-- Header (z-index বাড়িয়ে দেওয়া হয়েছে যাতে বাংলা বাটন পপআপের ওপরে থাকে এবং কাজ করে) -->
+    <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-[70]">
       <div class="flex items-center gap-3">
         <button id="menu-btn" type="button" class="md:hidden text-2xl text-gray-700 p-1">☰</button>
         <h1 class="text-xl font-bold text-gray-800" data-i18n="dash.h1">Patient Dashboard</h1>
       </div>
       <div class="flex items-center gap-3">
-        <button type="button" id="lang-btn" onclick="toggleLang()" class="px-3 py-1.5 text-sm font-medium border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition">
+        <!-- বাংলা বাটন সম্পূর্ণ সচল রাখা হয়েছে -->
+        <button type="button" id="lang-btn" onclick="toggleLang()" class="px-3 py-1.5 text-sm font-medium border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition cursor-pointer">
           বাংলা
         </button>
         <!-- ডাইনামিক ইউজারের নাম -->
@@ -190,7 +191,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   </div>
 
   <!-- 💡 ১. প্রথম ওয়েলকাম পপ-আপ কার্ড (Screenshot 33 স্টাইল) -->
-  <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-xl w-full rounded-3xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100 text-center relative">
       
       <div class="w-16 h-16 mx-auto bg-amber-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
@@ -223,7 +224,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       </div>
 
       <!-- ড্যাশবোর্ড শুরু করার বাটন -->
-      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2">
+      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2 cursor-pointer">
         ড্যাশবোর্ড ব্যবহার শুরু করুন ➔
       </button>
 
@@ -231,12 +232,12 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   </div>
 
   <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (Screenshot 30/31 স্টাইল) -->
-  <div id="liveTourModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div id="liveTourModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl border border-teal-100 max-w-md w-full p-6 space-y-4 relative">
       
       <div class="flex items-center justify-between border-b pb-3">
         <span id="tourStepIndicator" class="text-xs font-bold px-3 py-1 bg-teal-50 text-teal-700 rounded-full">Step 1 of 5</span>
-        <button onclick="closeLiveTour()" class="text-xs text-gray-400 hover:text-gray-600 font-medium">Skip Tour ✕</button>
+        <button onclick="closeLiveTour()" class="text-xs text-gray-400 hover:text-gray-600 font-medium cursor-pointer">Skip Tour ✕</button>
       </div>
       
       <div class="space-y-2 py-2">
@@ -245,8 +246,8 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       </div>
 
       <div class="flex items-center justify-between pt-3 border-t">
-        <button onclick="prevTourStep()" class="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-200 transition">← Back</button>
-        <button onclick="nextTourStep()" class="px-5 py-2 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 transition shadow-sm">Next →</button>
+        <button onclick="prevTourStep()" class="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-200 transition cursor-pointer">← Back</button>
+        <button onclick="nextTourStep()" class="px-5 py-2 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 transition shadow-sm cursor-pointer">Next →</button>
       </div>
 
     </div>
