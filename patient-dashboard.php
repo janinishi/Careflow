@@ -14,18 +14,16 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
-// সেশন বা ডাটাবেস থেকে ইউজারের আসল নাম এবং গাইড দেখার স্ট্যাটাস নিশ্চিত করা
+// সেশন বা ডাটাবেস থেকে ইউজারের আসল নাম নিশ্চিত করা
 $display_name = $_SESSION['full_name'] ?? $_SESSION['name'] ?? 'Patient';
-$has_seen_guide = 0;
 
 if (!empty($_SESSION['user_id'])) {
     try {
-        $stmt = $pdo->prepare("SELECT full_name, name, has_seen_guide FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT full_name, name FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch();
         if ($user) {
             $display_name = $user['full_name'] ?? $user['name'] ?? $display_name;
-            $has_seen_guide = $user['has_seen_guide'] ?? 0;
         }
     } catch (Exception $e) {
         // Fallback to session name
@@ -34,6 +32,7 @@ if (!empty($_SESSION['user_id'])) {
 
 // নামের প্রথম অক্ষর (Avatar-এর জন্য)
 $first_letter = strtoupper(mb_substr($display_name, 0, 1));
+$current_user_id = $_SESSION['user_id'] ?? 'guest';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -191,9 +190,8 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </main>
   </div>
 
-  <!-- 💡 ১. প্রথম ওয়েলকাম ওভারলে পপ-আপ (শুধু প্রথমবার দেখাবে) -->
-  <?php if (empty($has_seen_guide) || $has_seen_guide == 0): ?>
-  <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <!-- 💡 ১. প্রথম ওয়েলকাম ওভারলে পপ-আপ (ডিফল্ট hidden রাখা হয়েছে, JS দিয়ে প্রথমবার শুধু দেখানো হবে) -->
+  <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white max-w-xl w-full rounded-3xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100 text-center relative">
       <div class="w-16 h-16 mx-auto bg-amber-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">🎉</div>
       <div>
@@ -225,9 +223,8 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       </button>
     </div>
   </div>
-  <?php endif; ?>
 
-  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (৫টি মূল ফিচার হাইলাইট সহ) -->
+  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (৬টি মূল ফিচার হাইলাইট সহ) -->
   <div id="liveTourModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl shadow-2xl border border-teal-100 max-w-md w-full p-6 space-y-4 relative">
       <div class="flex items-center justify-between border-b pb-3">
@@ -259,19 +256,30 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
       });
     }
 
-    // ব্যাকএন্ডে মার্ক করা যে ইউজার গাইড দেখে ফেলেছে
+    // প্রতি ইউজারের জন্য আলাদা স্টোরেজ কি (Key) যাতে অ্যাকাউন্ট বদলালেও সমস্যা না হয়
+    const tourKey = "careflow_tour_seen_<?php echo $current_user_id; ?>";
+
+    // প্রথমবার ভিজিট করলে চেক করা এবং পপ-আপ দেখানো (পরবর্তীতে আর আসবে না)
+    document.addEventListener("DOMContentLoaded", function() {
+      const hasSeenTour = localStorage.getItem(tourKey);
+      if (!hasSeenTour) {
+        const overlay = document.getElementById('welcomeOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+      }
+    });
+
     function markTourAsSeen() {
-      fetch('mark-tour-seen.php', { method: 'POST' }).catch(err => console.log(err));
+      localStorage.setItem(tourKey, "true");
     }
 
     function startDashboardTour() {
       const overlay = document.getElementById('welcomeOverlay');
-      if (overlay) overlay.style.display = 'none';
+      if (overlay) overlay.classList.add('hidden');
       document.getElementById('liveTourModal').classList.remove('hidden');
       showTourStep(0);
     }
 
-    // ট্যুর স্টেপস এবং মেনু আইডি ম্যাপিং
+    // ট্যুর স্টেপস এবং মেনু আইডি ম্যাপিং (৬টি ফিচার)
     const tourSteps = [
       { elementId: 'menu-dash', titleKey: 'tour.step1.title', descKey: 'tour.step1.desc' },
       { elementId: 'menu-book', titleKey: 'tour.step2.title', descKey: 'tour.step2.desc' },
@@ -329,7 +337,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
         const el = document.getElementById(step.elementId);
         if (el) el.classList.remove('tour-target-highlight');
       });
-      document.getElementById('liveTourModal').style.display = 'none';
+      document.getElementById('liveTourModal').classList.add('hidden');
       markTourAsSeen();
     }
 
