@@ -231,7 +231,6 @@
 
   <!-- Interactive Logic & Built-in Safe Translations -->
   <script>
-    // ফলব্যাক বা নিজস্ব ট্রান্সলেশন ডিকশনারি যাতে কোনো কি (key) মিস না করে
     const LOCAL_LABELS = {
       en: {
         "r.sugg": "Suggested doctor type:",
@@ -241,6 +240,17 @@
         "hosp.2": "CareFlow Medical Center",
         "hosp.3": "CareFlow Medical Center",
         "hosp.4": "CareFlow Medical Center",
+        "doc.1": "Dr. Anika Rahman",
+        "doc.2": "Dr. M. A. Karim",
+        "doc.3": "Dr. Farhana Yasmin",
+        "doc.4": "Dr. Rafiqul Islam",
+        "doc.5": "Dr. S. A. Siddique",
+        "doc.6": "Dr. Tanvir Ahmed",
+        "doc.7": "Dr. Nazmul Hasan",
+        "doc.8": "Dr. Nusrat Jahan",
+        "doc.9": "Dr. Kamrul Islam",
+        "doc.10": "Dr. Shamim Ara",
+        "doc.11": "Dr. Zubaida Parvin",
         "spec.ENT": "ENT",
         "spec.Ophthalmology": "Ophthalmology",
         "spec.Cardiology": "Cardiology",
@@ -259,6 +269,17 @@
         "hosp.2": "কেয়ারফ্লো মেডিকেল সেন্টার",
         "hosp.3": "কেয়ারফ্লো মেডিকেল সেন্টার",
         "hosp.4": "কেয়ারফ্লো মেডিকেল সেন্টার",
+        "doc.1": "ডা. আনিকা রহমান",
+        "doc.2": "ডা. এম. এ. করিম",
+        "doc.3": "ডা. ফারহানা ইয়াছমিন",
+        "doc.4": "ডা. রফিকুল ইসলাম",
+        "doc.5": "ডা. এস. এ. সিদ্দিক",
+        "doc.6": "ডা. তানভীর আহমেদ",
+        "doc.7": "ডা. নাজমুল হাসান",
+        "doc.8": "ডা. নুসরাত জাহান",
+        "doc.9": "ডা. কামরুল ইসলাম",
+        "doc.10": "ডা. শামীম আরা",
+        "doc.11": "ডা. জুবাইদা পারভীন",
         "spec.ENT": "নাক, কান ও গলা (ENT)",
         "spec.Ophthalmology": "চক্ষু বিশেষজ্ঞ",
         "spec.Cardiology": "হৃদরোগ বিশেষজ্ঞ",
@@ -367,7 +388,7 @@
     }
 
     function doctorCard(d) {
-      let docName = (typeof t === 'function') ? t(d.nameKey) : d.nameKey;
+      let docName = getLocalText(d.nameKey, 'Dr. Specialist');
       let docSpec = getLocalText(d.specialtyKey, d.specialtyKey.replace('spec.', ''));
       let docHosp = getLocalText(d.hospitalKey, 'CareFlow Medical Center');
       
@@ -439,7 +460,7 @@
 
       let filtered = REAL_DOCTORS.filter(function(d) {
         let specName = getLocalText(d.specialtyKey, d.specialtyKey);
-        let docName = (typeof t === 'function') ? t(d.nameKey).toLowerCase() : d.nameKey.toLowerCase();
+        let docName = getLocalText(d.nameKey, d.nameKey).toLowerCase();
         let matchSpec = !spec || d.specialtyKey.toLowerCase().includes(spec.toLowerCase()) || specName.toLowerCase().includes(spec.toLowerCase());
         let matchName = !nameQuery || docName.includes(nameQuery) || d.nameKey.toLowerCase().includes(nameQuery);
         let matchLoc = !loc || loc === "ABROAD" || d.district.toLowerCase() === loc.toLowerCase();
