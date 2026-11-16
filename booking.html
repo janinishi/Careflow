@@ -257,7 +257,7 @@
       ];
 
       districtsList.forEach(function(d) {
-        let label = (currentLang === 'bn' && TRANSLATIONS.bn["loc." + d]) ? TRANSLATIONS.bn["loc." + d] : d;
+        let label = (currentLang === 'bn' && TRANSLATIONS && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d]) ? TRANSLATIONS.bn["loc." + d] : d;
         selectEl.add(new Option(label, d));
       });
 
@@ -314,16 +314,15 @@
     }
 
     function doctorCard(d) {
-      // সঠিক translation অথবা সেফ ফলব্যাক লজিক
-      let docName = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.nameKey]) ? t(d.nameKey) : (d.nameKey === 'doc.1' ? 'Dr. Anika Rahman' : (d.nameKey === 'doc.2' ? 'Dr. M. A. Karim' : (d.nameKey === 'doc.3' ? 'Dr. Farhana Yasmin' : (d.nameKey === 'doc.4' ? 'Dr. Rafiqul Islam' : 'Dr. Specialist'))));
+      let docName = (typeof t === 'function' && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.nameKey]) ? t(d.nameKey) : (d.nameKey === 'doc.1' ? 'Dr. Anika Rahman' : (d.nameKey === 'doc.2' ? 'Dr. M. A. Karim' : (d.nameKey === 'doc.3' ? 'Dr. Farhana Yasmin' : (d.nameKey === 'doc.4' ? 'Dr. Rafiqul Islam' : 'Dr. Specialist'))));
       
-      let docSpec = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.specialtyKey]) ? t(d.specialtyKey) : d.specialtyKey.replace('spec.', '');
-      let docHosp = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.hospitalKey]) ? t(d.hospitalKey) : 'CareFlow Medical Center';
+      let docSpec = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey.replace('spec.', '');
+      let docHosp = (typeof t === 'function') ? t(d.hospitalKey) : 'CareFlow Medical Center';
       
-      const bookText = (typeof t === 'function' && isBn()) ? 'অ্যাপয়েন্টমেন্ট বুক করুন' : 'Book Appointment';
-      const expText = (typeof t === 'function' && isBn()) ? 'বছরের অভিজ্ঞতা' : 'years exp';
-      const feeText = (typeof t === 'function' && isBn()) ? 'ফি:' : 'Fee:';
-      const districtText = (typeof t === 'function' && isBn() && TRANSLATIONS.bn["loc." + d.district]) ? TRANSLATIONS.bn["loc." + d.district] : d.district;
+      const bookText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'অ্যাপয়েন্টমেন্ট বুক করুন' : 'Book Appointment';
+      const expText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'বছরের অভিজ্ঞতা' : 'years exp';
+      const feeText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'ফি:' : 'Fee:';
+      const districtText = (typeof t === 'function' && typeof isBn === 'function' && isBn() && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d.district]) ? TRANSLATIONS.bn["loc." + d.district] : d.district;
       
       return '<div class="bg-white rounded-xl shadow-sm p-5 flex flex-col justify-between border border-gray-200 hover:border-teal-400 transition">' +
           '<div class="space-y-2">' +
@@ -352,7 +351,7 @@
       const selectedLocation = $("s-location").value;
 
       let matchedDocs = REAL_DOCTORS.filter(function(d) {
-        let specName = t(d.specialtyKey);
+        let specName = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
         let matchSpec = selectedSpecs.some(spec => d.specialtyKey.toLowerCase().includes(spec.toLowerCase()) || specName.toLowerCase().includes(spec.toLowerCase()));
         let matchLoc = !selectedLocation || selectedLocation === "ABROAD" || d.district.toLowerCase() === selectedLocation.toLowerCase();
         return matchSpec && matchLoc;
@@ -362,7 +361,12 @@
         matchedDocs = REAL_DOCTORS;
       }
 
-      $("suggested-list").textContent = selectedSpecs.map(s => (typeof t === 'function' && TRANSLATIONS[currentLang]["spec." + s]) ? TRANSLATIONS[currentLang]["spec." + s] : s).join(", ");
+      if (typeof t === 'function' && typeof TRANSLATIONS !== 'undefined' && currentLang && TRANSLATIONS[currentLang]) {
+        $("suggested-list").textContent = selectedSpecs.map(s => (TRANSLATIONS[currentLang]["spec." + s]) ? TRANSLATIONS[currentLang]["spec." + s] : s).join(", ");
+      } else {
+        $("suggested-list").textContent = selectedSpecs.join(", ");
+      }
+      
       $("suggestion-box").classList.remove("hidden");
 
       $("local-list").innerHTML = matchedDocs.map(doctorCard).join("");
@@ -378,8 +382,8 @@
       const loc = $("d-location").value;
 
       let filtered = REAL_DOCTORS.filter(function(d) {
-        let specName = t(d.specialtyKey);
-        let docName = t(d.nameKey).toLowerCase();
+        let specName = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
+        let docName = (typeof t === 'function') ? t(d.nameKey).toLowerCase() : d.nameKey.toLowerCase();
         let matchSpec = !spec || d.specialtyKey.toLowerCase().includes(spec.toLowerCase()) || specName.toLowerCase().includes(spec.toLowerCase());
         let matchName = !nameQuery || docName.includes(nameQuery) || d.nameKey.toLowerCase().includes(nameQuery);
         let matchLoc = !loc || loc === "ABROAD" || d.district.toLowerCase() === loc.toLowerCase();
@@ -414,7 +418,6 @@
       populateLocations($("d-location"));
       renderChips();
 
-      // পেজ লোড হওয়ার সময় যদি বাংলা সিলেক্ট করা থাকে তবে i18n ট্রান্সলেশন রান করবে
       if (typeof applyTranslations === 'function') {
         applyTranslations();
       }
