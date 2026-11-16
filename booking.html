@@ -314,8 +314,9 @@
     }
 
     function doctorCard(d) {
-      // সেফ ফলব্যাক লজিক যাতে i18n কি (key) না থাকলে সরাসরি অরিজিনাল নাম বা সুন্দর নাম দেখায়
+      // সঠিক translation অথবা সেফ ফলব্যাক লজিক
       let docName = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.nameKey]) ? t(d.nameKey) : (d.nameKey === 'doc.1' ? 'Dr. Anika Rahman' : (d.nameKey === 'doc.2' ? 'Dr. M. A. Karim' : (d.nameKey === 'doc.3' ? 'Dr. Farhana Yasmin' : (d.nameKey === 'doc.4' ? 'Dr. Rafiqul Islam' : 'Dr. Specialist'))));
+      
       let docSpec = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.specialtyKey]) ? t(d.specialtyKey) : d.specialtyKey.replace('spec.', '');
       let docHosp = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.hospitalKey]) ? t(d.hospitalKey) : 'CareFlow Medical Center';
       
@@ -412,6 +413,11 @@
       populateLocations($("s-location"));
       populateLocations($("d-location"));
       renderChips();
+
+      // পেজ লোড হওয়ার সময় যদি বাংলা সিলেক্ট করা থাকে তবে i18n ট্রান্সলেশন রান করবে
+      if (typeof applyTranslations === 'function') {
+        applyTranslations();
+      }
 
       const params = new URLSearchParams(window.location.search);
       const startMode = params.get("mode") === "direct" ? "direct" : "symptom";
