@@ -79,7 +79,7 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
   <!-- Main Area -->
   <div class="flex-1 flex flex-col min-w-0">
 
-    <!-- Header (z-index বাড়িয়ে দেওয়া হয়েছে যাতে বাংলা বাটন পপআপের ওপরে থাকে) -->
+    <!-- Header -->
     <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-[70]">
       <div class="flex items-center gap-3">
         <button id="menu-btn" type="button" class="md:hidden text-2xl text-gray-700 p-1">☰</button>
@@ -191,36 +191,36 @@ $first_letter = strtoupper(mb_substr($display_name, 0, 1));
     </main>
   </div>
 
-  <!-- 💡 ১. প্রথম ওয়েলকাম ওভারলে পপ-আপ (যদি ইউজার আগে না দেখে থাকে) -->
+  <!-- 💡 ১. প্রথম ওয়েলকাম ওভারলে পপ-আপ (শুধু প্রথমবার দেখাবে) -->
   <?php if (empty($has_seen_guide) || $has_seen_guide == 0): ?>
   <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-xl w-full rounded-3xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100 text-center relative">
       <div class="w-16 h-16 mx-auto bg-amber-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">🎉</div>
       <div>
-        <h2 class="text-2xl font-bold text-gray-800" data-i18n="tour.welcomeTitle" data-i18n-vars='{"name": "<?= htmlspecialchars($display_name) ?>"}'>স্বাগতম, <?= htmlspecialchars($display_name) ?>!</h2>
-        <p class="text-xs md:text-sm text-gray-500 mt-1" data-i18n="tour.welcomeSub">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
+        <h2 class="text-2xl font-bold text-gray-800">স্বাগতম, <?= htmlspecialchars($display_name) ?>!</h2>
+        <p class="text-xs md:text-sm text-gray-500 mt-1">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
         <div class="p-3.5 bg-teal-50/50 border border-teal-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-teal-700" data-i18n="tour.f1Title">📅 Book Appointment</span>
-          <p class="text-[11px] text-gray-600" data-i18n="tour.f1Desc">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
+          <span class="text-xs font-bold text-teal-700">📅 Book Appointment</span>
+          <p class="text-[11px] text-gray-600">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
         </div>
         <div class="p-3.5 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-blue-700" data-i18n="tour.f2Title">💊 Prescriptions</span>
-          <p class="text-[11px] text-gray-600" data-i18n="tour.f2Desc">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
+          <span class="text-xs font-bold text-blue-700">💊 Prescriptions</span>
+          <p class="text-[11px] text-gray-600">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
         </div>
         <div class="p-3.5 bg-red-50/50 border border-red-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-teal-700" data-i18n="tour.f3Title">🩸 Blood Donors</span>
-          <p class="text-[11px] text-gray-600" data-i18n="tour.f3Desc">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
+          <span class="text-xs font-bold text-teal-700">🩸 Blood Donors</span>
+          <p class="text-[11px] text-gray-600">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
         </div>
         <div class="p-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1">
-          <span class="text-xs font-bold text-amber-700" data-i18n="tour.f4Title">🛡️ Report Doctor</span>
-          <p class="text-[11px] text-gray-600" data-i18n="tour.f4Desc">কোনো অভিযোগ বা মতামত জানানোর জন্য।</p>
+          <span class="text-xs font-bold text-amber-700">🛡️ Report Doctor</span>
+          <p class="text-[11px] text-gray-600">কোনো অভিযোগ বা মতামত জানানোর জন্য।</p>
         </div>
       </div>
 
-      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2 cursor-pointer" data-i18n="tour.startBtn">
+      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2 cursor-pointer">
         ড্যাশবোর্ড ব্যবহার শুরু করুন ➔
       </button>
     </div>
