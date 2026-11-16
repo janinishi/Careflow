@@ -314,13 +314,14 @@
     }
 
     function doctorCard(d) {
-      const docName = (typeof t === 'function') ? t(d.nameKey) : d.nameKey;
-      const docSpec = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
-      const docHosp = (typeof t === 'function') ? t(d.hospitalKey) : d.hospitalKey;
-      const bookText = (typeof t === 'function') ? t('bk.btn') : 'Book Appointment';
+      // সেফ ফলব্যাক লজিক যাতে i18n কি (key) না থাকলে সরাসরি অরিজিনাল নাম বা সুন্দর নাম দেখায়
+      let docName = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.nameKey]) ? t(d.nameKey) : (d.nameKey === 'doc.1' ? 'Dr. Anika Rahman' : (d.nameKey === 'doc.2' ? 'Dr. M. A. Karim' : (d.nameKey === 'doc.3' ? 'Dr. Farhana Yasmin' : (d.nameKey === 'doc.4' ? 'Dr. Rafiqul Islam' : 'Dr. Specialist'))));
+      let docSpec = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.specialtyKey]) ? t(d.specialtyKey) : d.specialtyKey.replace('spec.', '');
+      let docHosp = (typeof t === 'function' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.hospitalKey]) ? t(d.hospitalKey) : 'CareFlow Medical Center';
+      
+      const bookText = (typeof t === 'function' && isBn()) ? 'অ্যাপয়েন্টমেন্ট বুক করুন' : 'Book Appointment';
       const expText = (typeof t === 'function' && isBn()) ? 'বছরের অভিজ্ঞতা' : 'years exp';
       const feeText = (typeof t === 'function' && isBn()) ? 'ফি:' : 'Fee:';
-      const countryText = (typeof t === 'function' && isBn() && d.country === 'Bangladesh') ? 'বাংলাদেশ' : d.country;
       const districtText = (typeof t === 'function' && isBn() && TRANSLATIONS.bn["loc." + d.district]) ? TRANSLATIONS.bn["loc." + d.district] : d.district;
       
       return '<div class="bg-white rounded-xl shadow-sm p-5 flex flex-col justify-between border border-gray-200 hover:border-teal-400 transition">' +
@@ -330,7 +331,7 @@
               '<p class="text-xs text-gray-500 font-medium">' + d.degree + '</p></div>' +
               '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">' + docSpec + '</span>' +
             '</div>' +
-            '<p class="text-sm text-gray-600">🏥 ' + docHosp + '<br>📍 ' + districtText + ', ' + countryText + '</p>' +
+            '<p class="text-sm text-gray-600">🏥 ' + docHosp + '<br>📍 ' + districtText + ', ' + d.country + '</p>' +
             '<p class="text-sm font-semibold text-gray-700">' + d.years + ' ' + expText + ' · ' + feeText + ' ' + d.fee + '</p>' +
           '</div>' +
           '<button type="button" onclick="chooseDoctor(' + d.id + ', \'' + docName + '\')" class="choose-btn mt-4 w-full py-2.5 bg-teal-600 text-white text-sm font-bold rounded-lg hover:bg-teal-700 transition">' + bookText + '</button>' +
