@@ -1,3 +1,39 @@
+<?php
+/**
+ * CareFlow - Dynamic Patient Dashboard with 1-Time Welcome Tour
+ */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/db.php';
+
+// যদি লগইন করা না থাকে, তবে লগইন পেজে রিডাইরেক্ট করবে
+if (empty($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// সেশন বা ডাটাবেস থেকে ইউজারের আসল নাম এবং গাইড দেখার স্ট্যাটাস নিশ্চিত করা
+$display_name = $_SESSION['full_name'] ?? $_SESSION['name'] ?? 'Patient';
+
+if (!empty($_SESSION['user_id'])) {
+    try {
+        $stmt = $pdo->prepare("SELECT full_name, name FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+        if ($user) {
+            $display_name = $user['full_name'] ?? $user['name'] ?? $display_name;
+        }
+    } catch (Exception $e) {
+        // Fallback to session name
+    }
+}
+
+// নামের প্রথম অক্ষর (Avatar-এর জন্য)
+$first_letter = strtoupper(mb_substr($display_name, 0, 1));
+$current_user_id = $_SESSION['user_id'] ?? 'guest';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,18 +45,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif; }
-    
-    /* স্পটলাইট ট্যুর হাইলাইট ইফেক্ট */
-    .tour-highlight {
-      position: relative !important;
-      z-index: 100 !important;
+    /* মেনু হাইলাইট স্টাইল */
+    .tour-target-highlight {
       background-color: #ffffff !important;
-      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.4), 0 10px 25px -3px rgba(0, 0, 0, 0.2) !important;
-      border-radius: 0.5rem;
+      border: 2px solid #0d9488 !important;
+      box-shadow: 0 0 15px rgba(13, 148, 136, 0.3) !important;
+      border-radius: 12px;
+      position: relative;
+      z-index: 60;
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col md:flex-row relative">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col md:flex-row">
 
   <!-- Sidebar -->
   <aside id="sidebar" class="hidden md:block w-full md:w-64 bg-white border-r border-gray-200 shrink-0 min-h-screen">
@@ -29,13 +65,13 @@
     </div>
 
     <nav class="p-4 space-y-1 text-sm font-medium">
-      <a href="patient-dashboard.html" id="tour-dash" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-teal-50 text-teal-700 font-semibold" data-i18n="side.dash">🏠 Dashboard</a>
-      <a href="booking.html" id="tour-book" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.book">📅 Book Appointment</a>
-      <a href="appointments.php" id="tour-appts" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.appts">🗓️ My Appointments</a>
-      <a href="prescription.php" id="tour-presc" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.presc">💊 Prescriptions</a>
-      <a href="blood-donors.php" id="tour-blood" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.blood">🩸 Blood Donors</a>
-      <a href="report-doctor.php" id="tour-report" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700" data-i18n="side.report">🛡️ Report Doctor</a>
-      <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50" data-i18n="side.logout">🚪 Logout</a>
+      <a href="patient-dashboard.php" id="menu-dash" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 transition" data-i18n="side.dash">🏠 Dashboard</a>
+      <a href="booking.html" id="menu-book" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.book">📅 Book Appointment</a>
+      <a href="appointments.php" id="menu-appts" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.appts">🗓️ My Appointments</a>
+      <a href="prescription.php" id="menu-presc" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.presc">💊 Prescriptions</a>
+      <a href="blood-donors.php" id="menu-blood" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.blood">🩸 Blood Donors</a>
+      <a href="report-doctor.php" id="menu-report" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 transition" data-i18n="side.report">🛡️ Report Doctor</a>
+      <a href="logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition" data-i18n="side.logout">🚪 Logout</a>
     </nav>
   </aside>
 
@@ -43,17 +79,21 @@
   <div class="flex-1 flex flex-col min-w-0">
 
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-[110]">
+    <header class="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-[70]">
       <div class="flex items-center gap-3">
         <button id="menu-btn" type="button" class="md:hidden text-2xl text-gray-700 p-1">☰</button>
         <h1 class="text-xl font-bold text-gray-800" data-i18n="dash.h1">Patient Dashboard</h1>
       </div>
-      <div class="flex items-center gap-3 relative z-[110]">
-        <button type="button" id="lang-btn" onclick="toggleLang()" class="px-3 py-1.5 text-sm font-medium border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition cursor-pointer pointer-events-auto">
+      <div class="flex items-center gap-3">
+        <button type="button" id="lang-btn" onclick="toggleLang()" class="px-3 py-1.5 text-sm font-medium border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition cursor-pointer">
           বাংলা
         </button>
-        <span class="hidden sm:block text-sm text-gray-600 font-medium" data-i18n="dash.hello">Hello, Patient</span>
-        <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold">P</div>
+        <!-- ডাইনামিক ইউজারের নাম -->
+        <span class="hidden sm:block text-sm text-gray-600 font-medium">Hello, <strong class="text-gray-900"><?= htmlspecialchars($display_name) ?></strong></span>
+        <!-- ডাইনামিক অবতারের প্রথম অক্ষর -->
+        <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold">
+          <?= htmlspecialchars($first_letter) ?>
+        </div>
       </div>
     </header>
 
@@ -62,7 +102,7 @@
 
       <!-- Welcome Banner -->
       <div>
-        <h2 class="text-2xl font-bold text-gray-900" data-i18n="dash.welcome">Welcome back 👋</h2>
+        <h2 class="text-2xl font-bold text-gray-900">Welcome back, <?= htmlspecialchars($display_name) ?> 👋</h2>
         <p class="text-gray-600 text-sm mt-1" data-i18n="dash.sub">Here is a quick look at your health activity.</p>
       </div>
 
@@ -150,20 +190,56 @@
     </main>
   </div>
 
-  <!-- Interactive Website Tour Box (Optional for HTML) -->
-  <div id="tour-overlay" class="fixed inset-0 bg-black/30 z-50 pointer-events-none hidden items-center justify-center p-4">
-    <div id="tour-card" class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-teal-100 transform transition-all pointer-events-auto relative z-[90]">
+  <!-- 💡 ১. প্রথম ওয়েলকাম ওভারলে পপ-আপ -->
+  <div id="welcomeOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-xl w-full rounded-3xl shadow-2xl p-6 md:p-8 space-y-6 border border-gray-100 text-center relative">
+      <div class="w-16 h-16 mx-auto bg-amber-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">🎉</div>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">স্বাগতম, <?= htmlspecialchars($display_name) ?>!</h2>
+        <p class="text-xs md:text-sm text-gray-500 mt-1">CareFlow-তে আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। নিচে দেখে নিন কোথায় কোন ফিচারটি পাবেন:</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+        <div class="p-3.5 bg-teal-50/50 border border-teal-100 rounded-2xl space-y-1">
+          <span class="text-xs font-bold text-teal-700">📅 Book Appointment</span>
+          <p class="text-[11px] text-gray-600">নতুন ডাক্তার ও ভিজিটের জন্য সময় বুক করতে পারবেন।</p>
+        </div>
+        <div class="p-3.5 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-1">
+          <span class="text-xs font-bold text-blue-700">💊 Prescriptions</span>
+          <p class="text-[11px] text-gray-600">ডাক্তারদের দেওয়া সব প্রেসক্রিপশন এখানে পাবেন।</p>
+        </div>
+        <div class="p-3.5 bg-red-50/50 border border-red-100 rounded-2xl space-y-1">
+          <span class="text-xs font-bold text-teal-700">🩸 Blood Donors</span>
+          <p class="text-[11px] text-gray-600">জরুরি প্রয়োজনে রক্তের ডোনারদের তালিকা দেখতে পাবেন।</p>
+        </div>
+        <div class="p-3.5 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1">
+          <span class="text-xs font-bold text-amber-700">🛡️ Report Doctor</span>
+          <p class="text-[11px] text-gray-600">কোনো অভিযোগ বা মতামত জানানোর জন্য।</p>
+        </div>
+      </div>
+
+      <button onclick="startDashboardTour()" class="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/30 transition text-sm flex items-center justify-center gap-2 cursor-pointer">
+        ড্যাশবোর্ড ব্যবহার শুরু করুন ➔
+      </button>
+    </div>
+  </div>
+
+  <!-- 💡 ২. ড্যাশবোর্ড ট্যুর পপ-আপ (৬টি মূল ফিচার হাইলাইট সহ) -->
+  <div id="liveTourModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl border border-teal-100 max-w-md w-full p-6 space-y-4 relative">
       <div class="flex items-center justify-between border-b pb-3">
-        <span id="tour-step-indicator" class="text-xs font-bold text-teal-600 uppercase tracking-wider">Step 1 of 6</span>
-        <button id="tour-skip-btn" onclick="endTour()" class="text-gray-400 hover:text-gray-600 text-sm font-semibold cursor-pointer">Skip Tour ✕</button>
+        <span id="tourStepIndicator" class="text-xs font-bold px-3 py-1 bg-teal-50 text-teal-700 rounded-full">Step 1 of 6</span>
+        <button onclick="closeLiveTour()" class="text-xs text-gray-400 hover:text-gray-600 font-medium cursor-pointer" data-i18n="tour.skip">Skip Tour ✕</button>
       </div>
-      <div class="space-y-2">
-        <h3 id="tour-title" class="text-lg font-bold text-gray-900">Welcome Dashboard</h3>
-        <p id="tour-desc" class="text-sm text-gray-600">This is your main dashboard where you can check your overall health summary.</p>
+      
+      <div class="space-y-2 py-2">
+        <h4 id="tourTitle" class="font-bold text-gray-800 text-lg"></h4>
+        <p id="tourDesc" class="text-xs md:text-sm text-gray-600 leading-relaxed bg-gray-50 p-3.5 rounded-2xl border border-gray-100"></p>
       </div>
-      <div class="flex items-center justify-between pt-2">
-        <button id="tour-prev-btn" onclick="prevStep()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 hidden cursor-pointer">Previous</button>
-        <button id="tour-next-btn" onclick="nextStep()" class="ml-auto px-5 py-2 text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition cursor-pointer">Next ➔</button>
+
+      <div class="flex items-center justify-between pt-3 border-t">
+        <button onclick="prevTourStep()" id="tourPrevBtn" class="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-200 transition cursor-pointer" data-i18n="tour.back">← Back</button>
+        <button onclick="nextTourStep()" id="tourNextBtn" class="px-5 py-2 bg-teal-600 text-white text-xs font-semibold rounded-xl hover:bg-teal-700 transition shadow-sm cursor-pointer" data-i18n="tour.next">Next →</button>
       </div>
     </div>
   </div>
@@ -180,14 +256,95 @@
       });
     }
 
-    // Language Toggle Handling
+    const tourKey = "careflow_tour_seen_<?php echo $current_user_id; ?>";
+
+    // প্রথমবার লগইন করলে চেক করা এবং পপ-আপ দেখানো
+    document.addEventListener("DOMContentLoaded", function() {
+      const hasSeenTour = localStorage.getItem(tourKey);
+      if (!hasSeenTour) {
+        const overlay = document.getElementById('welcomeOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+      }
+    });
+
+    function markTourAsSeen() {
+      localStorage.setItem(tourKey, "true");
+    }
+
+    function startDashboardTour() {
+      const overlay = document.getElementById('welcomeOverlay');
+      if (overlay) overlay.classList.add('hidden');
+      document.getElementById('liveTourModal').classList.remove('hidden');
+      showTourStep(0);
+    }
+
+    // ট্যুর স্টেপস এবং মেনু আইডি ম্যাপিং
+    const tourSteps = [
+      { elementId: 'menu-dash', titleKey: 'tour.step1.title', descKey: 'tour.step1.desc' },
+      { elementId: 'menu-book', titleKey: 'tour.step2.title', descKey: 'tour.step2.desc' },
+      { elementId: 'menu-appts', titleKey: 'tour.step3.title', descKey: 'tour.step3.desc' },
+      { elementId: 'menu-presc', titleKey: 'tour.step4.title', descKey: 'tour.step4.desc' },
+      { elementId: 'menu-blood', titleKey: 'tour.step5.title', descKey: 'tour.step5.desc' },
+      { elementId: 'menu-report', titleKey: 'tour.step6.title', descKey: 'tour.step6.desc' }
+    ];
+
+    let currentTourIdx = 0;
+
+    function showTourStep(idx) {
+      tourSteps.forEach(step => {
+        const el = document.getElementById(step.elementId);
+        if (el) el.classList.remove('tour-target-highlight');
+      });
+
+      const current = tourSteps[idx];
+      document.getElementById('tourStepIndicator').textContent = `Step ${idx + 1} of ${tourSteps.length}`;
+      document.getElementById('tourTitle').textContent = t(current.titleKey);
+      document.getElementById('tourDesc').textContent = t(current.descKey);
+
+      const targetEl = document.getElementById(current.elementId);
+      if (targetEl) {
+        targetEl.classList.add('tour-target-highlight');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function updateTourLanguage() {
+      const modal = document.getElementById('liveTourModal');
+      if (modal && !modal.classList.contains('hidden')) {
+        showTourStep(currentTourIdx);
+      }
+    }
+
+    function nextTourStep() {
+      if (currentTourIdx < tourSteps.length - 1) {
+        currentTourIdx++;
+        showTourStep(currentTourIdx);
+      } else {
+        closeLiveTour();
+      }
+    }
+
+    function prevTourStep() {
+      if (currentTourIdx > 0) {
+        currentTourIdx--;
+        showTourStep(currentTourIdx);
+      }
+    }
+
+    function closeLiveTour() {
+      tourSteps.forEach(step => {
+        const el = document.getElementById(step.elementId);
+        if (el) el.classList.remove('tour-target-highlight');
+      });
+      document.getElementById('liveTourModal').classList.add('hidden');
+      markTourAsSeen();
+    }
+
+    // Language Toggle Button Text Sync
     document.addEventListener("langchange", function () {
       const btn = document.getElementById("lang-btn");
       if (btn && typeof isBn === "function") {
         btn.textContent = isBn() ? "English" : "বাংলা";
-      }
-      if (typeof tourSteps !== 'undefined' && tourSteps.length > 0) {
-        showStep(currentStep);
       }
     });
 
@@ -196,97 +353,7 @@
       if (btn && typeof isBn === "function") {
         btn.textContent = isBn() ? "English" : "বাংলা";
       }
-
-      // URL এ ?tour=1 থাকলে ট্যুর শুরু হবে
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('tour') === '1') {
-        const overlay = document.getElementById('tour-overlay');
-        if (overlay) overlay.classList.remove('hidden');
-        if (typeof showStep === 'function') showStep(0);
-      }
     });
-
-    // Tour Logic for HTML
-    let currentStep = 0;
-    const tourSteps = [
-      { el: 'tour-dash', titleKey: 'tour.title1', descKey: 'tour.desc1' },
-      { el: 'tour-book', titleKey: 'tour.title2', descKey: 'tour.desc2' },
-      { el: 'tour-appts', titleKey: 'tour.title3', descKey: 'tour.desc3' },
-      { el: 'tour-presc', titleKey: 'tour.title4', descKey: 'tour.desc4' },
-      { el: 'tour-blood', titleKey: 'tour.title5', descKey: 'tour.desc5' },
-      { el: 'tour-report', titleKey: 'tour.title6', descKey: 'tour.desc6' }
-    ];
-
-    function showStep(index) {
-      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-
-      if (index >= tourSteps.length) {
-        endTour();
-        return;
-      }
-
-      const step = tourSteps[index];
-      const targetEl = document.getElementById(step.el);
-
-      if (targetEl) {
-        targetEl.classList.add('tour-highlight');
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-
-      const indicator = document.getElementById('tour-step-indicator');
-      if (indicator) {
-        indicator.textContent = (typeof isBn === 'function' && isBn()) ? `ধাপ ${index + 1} এর ${tourSteps.length}` : `Step ${index + 1} of ${tourSteps.length}`;
-      }
-      
-      const titleEl = document.getElementById('tour-title');
-      const descEl = document.getElementById('tour-desc');
-      const nextBtn = document.getElementById('tour-next-btn');
-      const prevBtn = document.getElementById('tour-prev-btn');
-      const skipBtn = document.getElementById('tour-skip-btn');
-
-      if (titleEl && typeof t === 'function') titleEl.textContent = t(step.titleKey);
-      if (descEl && typeof t === 'function') descEl.textContent = t(step.descKey);
-      if (skipBtn && typeof t === 'function') skipBtn.textContent = t('tour.skip');
-
-      if (prevBtn) {
-        if (typeof t === 'function') prevBtn.textContent = t('tour.prev');
-        if (index === 0) {
-          prevBtn.classList.add('hidden');
-        } else {
-          prevBtn.classList.remove('hidden');
-        }
-      }
-
-      if (nextBtn) {
-        if (index === tourSteps.length - 1) {
-          if (typeof t === 'function') nextBtn.textContent = t('tour.finish');
-        } else {
-          if (typeof t === 'function') nextBtn.textContent = t('tour.next');
-        }
-      }
-      
-      if (typeof applyTranslations === 'function') {
-        applyTranslations();
-      }
-    }
-
-    function nextStep() {
-      currentStep++;
-      showStep(currentStep);
-    }
-
-    function prevStep() {
-      if (currentStep > 0) {
-        currentStep--;
-        showStep(currentStep);
-      }
-    }
-
-    function endTour() {
-      document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-      const overlay = document.getElementById('tour-overlay');
-      if (overlay) overlay.classList.add('hidden');
-    }
   </script>
 
 </body>

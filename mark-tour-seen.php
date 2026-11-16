@@ -4,13 +4,18 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/db.php';
 
+header('Content-Type: application/json');
+
 if (!empty($_SESSION['user_id'])) {
     try {
         $stmt = $pdo->prepare("UPDATE users SET has_seen_guide = 1 WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         echo json_encode(["status" => "success"]);
+        exit;
     } catch (Exception $e) {
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+        exit;
     }
 }
+echo json_encode(["status" => "unauthorized"]);
 ?>
