@@ -145,13 +145,13 @@
       <!-- Search Results Section -->
       <section id="results-section" class="hidden space-y-6">
         <div id="suggestion-box" class="hidden bg-teal-50 border border-teal-200 rounded-xl p-4 text-sm text-teal-900">
-          <p class="font-medium"><span data-i18n="r.sugg">Suggested doctor type:</span> <span id="suggested-list" class="font-bold text-teal-700 underline"></span></p>
-          <p class="text-xs text-teal-600 mt-1" data-i18n="r.suggHint">Based on your description, these specialists are most suitable.</p>
+          <p class="font-medium"><span data-i18n="r.sugg" id="lbl-sugg">Suggested doctor type:</span> <span id="suggested-list" class="font-bold text-teal-700 underline"></span></p>
+          <p class="text-xs text-teal-600 mt-1" data-i18n="r.suggHint" id="lbl-suggHint">Based on your description, these specialists are most suitable.</p>
         </div>
 
         <div id="local-wrap">
           <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <span data-i18n="r.local">Doctors in Bangladesh</span> 
+            <span data-i18n="r.local" id="lbl-local">Doctors in Bangladesh</span> 
             <span id="local-count" class="text-sm font-normal text-gray-500"></span>
           </h2>
           <div id="local-list" class="grid gap-4 md:grid-cols-2"></div>
@@ -229,8 +229,59 @@
   <script src="i18n.js"></script>
   <script src="data.js"></script>
 
-  <!-- Interactive Logic -->
+  <!-- Interactive Logic & Built-in Safe Translations -->
   <script>
+    // ফলব্যাক বা নিজস্ব ট্রান্সলেশন ডিকশনারি যাতে কোনো কি (key) মিস না করে
+    const LOCAL_LABELS = {
+      en: {
+        "r.sugg": "Suggested doctor type:",
+        "r.suggHint": "Based on your description, these specialists are most suitable.",
+        "r.local": "Doctors in Bangladesh",
+        "hosp.1": "CareFlow Medical Center",
+        "hosp.2": "CareFlow Medical Center",
+        "hosp.3": "CareFlow Medical Center",
+        "hosp.4": "CareFlow Medical Center",
+        "spec.ENT": "ENT",
+        "spec.Ophthalmology": "Ophthalmology",
+        "spec.Cardiology": "Cardiology",
+        "spec.Medicine": "Medicine",
+        "spec.Neurosurgery": "Neurosurgery",
+        "spec.Gynecology": "Gynecology",
+        "spec.Orthopedics": "Orthopedics",
+        "spec.Pediatrics": "Pediatrics",
+        "spec.Dermatology": "Dermatology"
+      },
+      bn: {
+        "r.sugg": "পরামর্শকৃত চিকিৎসকের ধরণ:",
+        "r.suggHint": "আপনার বিবরণ অনুযায়ী এই বিশেষজ্ঞরা সবচেয়ে উপযুক্ত।",
+        "r.local": "বাংলাদেশের চিকিৎসকবৃন্দ",
+        "hosp.1": "কেয়ারফ্লো মেডিকেল সেন্টার",
+        "hosp.2": "কেয়ারফ্লো মেডিকেল সেন্টার",
+        "hosp.3": "কেয়ারফ্লো মেডিকেল সেন্টার",
+        "hosp.4": "কেয়ারফ্লো মেডিকেল সেন্টার",
+        "spec.ENT": "নাক, কান ও গলা (ENT)",
+        "spec.Ophthalmology": "চক্ষু বিশেষজ্ঞ",
+        "spec.Cardiology": "হৃদরোগ বিশেষজ্ঞ",
+        "spec.Medicine": "মেডিসিন বিশেষজ্ঞ",
+        "spec.Neurosurgery": "নিউরোসার্জারি",
+        "spec.Gynecology": "গাইনি ও প্রসূতি বিশেষজ্ঞ",
+        "spec.Orthopedics": "হাড় ও জোড়া রোগ বিশেষজ্ঞ",
+        "spec.Pediatrics": "শিশু বিশেষজ্ঞ",
+        "spec.Dermatology": "ত্বক ও চর্মরোগ বিশেষজ্ঞ"
+      }
+    };
+
+    function getLocalText(key, fallback) {
+      const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+      if (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) {
+        return TRANSLATIONS[lang][key];
+      }
+      if (LOCAL_LABELS[lang] && LOCAL_LABELS[lang][key]) {
+        return LOCAL_LABELS[lang][key];
+      }
+      return fallback;
+    }
+
     function $(id) { return document.getElementById(id); }
     let currentMode = "symptom";
 
@@ -249,7 +300,8 @@
       if (!selectEl) return;
       const keep = selectEl.value;
       selectEl.innerHTML = "";
-      selectEl.add(new Option(currentLang === 'bn' ? "সব জেলা (বাংলাদেশ)" : "All Districts (Bangladesh)", ""));
+      const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+      selectEl.add(new Option(lang === 'bn' ? "সব জেলা (বাংলাদেশ)" : "All Districts (Bangladesh)", ""));
 
       const districtsList = [
         "Dhaka", "Dinajpur", "Chattogram", "Rajshahi", "Khulna", "Sylhet", "Rangpur", "Barishal", 
@@ -257,13 +309,13 @@
       ];
 
       districtsList.forEach(function(d) {
-        let label = (currentLang === 'bn' && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d]) ? TRANSLATIONS.bn["loc." + d] : d;
+        let label = (lang === 'bn' && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d]) ? TRANSLATIONS.bn["loc." + d] : d;
         selectEl.add(new Option(label, d));
       });
 
       const abroadOpt = document.createElement("optgroup");
-      abroadOpt.label = currentLang === 'bn' ? "বিদেশের বিশেষজ্ঞ" : "Specialists Abroad";
-      abroadOpt.appendChild(new Option(currentLang === 'bn' ? "যেকোনো বিদেশি দেশ" : "Any Country Abroad", "ABROAD"));
+      abroadOpt.label = lang === 'bn' ? "বিদেশের বিশেষজ্ঞ" : "Specialists Abroad";
+      abroadOpt.appendChild(new Option(lang === 'bn' ? "যেকোনো বিদেশি দেশ" : "Any Country Abroad", "ABROAD"));
       ["India", "Singapore", "Thailand", "Malaysia"].forEach(function(c) {
         abroadOpt.appendChild(new Option(c, c));
       });
@@ -288,8 +340,9 @@
     function renderChips() {
       if ($("chips")) {
         $("chips").innerHTML = CHIPS.map(function (k) {
-          return '<button type="button" onclick="addChip(\'' + (typeof t === 'function' ? t("chip." + k) : k) + '\')" class="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-gray-700 hover:border-teal-500 hover:text-teal-700 transition">' +
-                 (typeof t === 'function' ? t("chip." + k) : k) + '</button>';
+          const chipLabel = (typeof t === 'function') ? t("chip." + k) : k;
+          return '<button type="button" onclick="addChip(\'' + chipLabel + '\')" class="px-3 py-1 text-sm rounded-full border border-gray-300 bg-white text-gray-700 hover:border-teal-500 hover:text-teal-700 transition">' +
+                 chipLabel + '</button>';
         }).join("");
       }
     }
@@ -314,15 +367,16 @@
     }
 
     function doctorCard(d) {
-      // সঠিক অনুবাদ নিশ্চিত করতে ডাইনামিক ফাংশন ব্যবহার করা হলো
       let docName = (typeof t === 'function') ? t(d.nameKey) : d.nameKey;
-      let docSpec = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
-      let docHosp = (typeof t === 'function') ? t(d.hospitalKey) : d.hospitalKey;
+      let docSpec = getLocalText(d.specialtyKey, d.specialtyKey.replace('spec.', ''));
+      let docHosp = getLocalText(d.hospitalKey, 'CareFlow Medical Center');
       
-      const bookText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'অ্যাপয়েন্টমেন্ট বুক করুন' : 'Book Appointment';
-      const expText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'বছরের অভিজ্ঞতা' : 'years exp';
-      const feeText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'ফি:' : 'Fee:';
-      const districtText = (typeof t === 'function' && typeof isBn === 'function' && isBn() && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d.district]) ? TRANSLATIONS.bn["loc." + d.district] : d.district;
+      const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+      const bookText = (lang === 'bn') ? 'অ্যাপয়েন্টমেন্ট বুক করুন' : 'Book Appointment';
+      const expText = (lang === 'bn') ? 'বছরের অভিজ্ঞতা' : 'years exp';
+      const feeText = (lang === 'bn') ? 'ফি:' : 'Fee:';
+      const districtText = (lang === 'bn' && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d.district]) ? TRANSLATIONS.bn["loc." + d.district] : d.district;
+      const countryText = (lang === 'bn' && d.country === 'Bangladesh') ? 'বাংলাদেশ' : d.country;
       
       return '<div class="bg-white rounded-xl shadow-sm p-5 flex flex-col justify-between border border-gray-200 hover:border-teal-400 transition">' +
           '<div class="space-y-2">' +
@@ -331,11 +385,17 @@
               '<p class="text-xs text-gray-500 font-medium">' + d.degree + '</p></div>' +
               '<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800">' + docSpec + '</span>' +
             '</div>' +
-            '<p class="text-sm text-gray-600">🏥 ' + docHosp + '<br>📍 ' + districtText + ', ' + d.country + '</p>' +
+            '<p class="text-sm text-gray-600">🏥 ' + docHosp + '<br>📍 ' + districtText + ', ' + countryText + '</p>' +
             '<p class="text-sm font-semibold text-gray-700">' + d.years + ' ' + expText + ' · ' + feeText + ' ' + d.fee + '</p>' +
           '</div>' +
           '<button type="button" onclick="chooseDoctor(' + d.id + ', \'' + docName + '\')" class="choose-btn mt-4 w-full py-2.5 bg-teal-600 text-white text-sm font-bold rounded-lg hover:bg-teal-700 transition">' + bookText + '</button>' +
         '</div>';
+    }
+
+    function updateStaticLabels() {
+      if ($("lbl-sugg")) $("lbl-sugg").textContent = getLocalText("r.sugg", "Suggested doctor type:");
+      if ($("lbl-suggHint")) $("lbl-suggHint").textContent = getLocalText("r.suggHint", "Based on your description, these specialists are most suitable.");
+      if ($("lbl-local")) $("lbl-local").textContent = getLocalText("r.local", "Doctors in Bangladesh");
     }
 
     function runSymptomSearch(scroll) {
@@ -351,7 +411,7 @@
       const selectedLocation = $("s-location").value;
 
       let matchedDocs = REAL_DOCTORS.filter(function(d) {
-        let specName = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
+        let specName = getLocalText(d.specialtyKey, d.specialtyKey);
         let matchSpec = selectedSpecs.some(spec => d.specialtyKey.toLowerCase().includes(spec.toLowerCase()) || specName.toLowerCase().includes(spec.toLowerCase()));
         let matchLoc = !selectedLocation || selectedLocation === "ABROAD" || d.district.toLowerCase() === selectedLocation.toLowerCase();
         return matchSpec && matchLoc;
@@ -361,12 +421,8 @@
         matchedDocs = REAL_DOCTORS;
       }
 
-      if (typeof t === 'function' && typeof TRANSLATIONS !== 'undefined' && currentLang && TRANSLATIONS[currentLang]) {
-        $("suggested-list").textContent = selectedSpecs.map(s => (TRANSLATIONS[currentLang]["spec." + s]) ? TRANSLATIONS[currentLang]["spec." + s] : s).join(", ");
-      } else {
-        $("suggested-list").textContent = selectedSpecs.join(", ");
-      }
-      
+      $("suggested-list").textContent = selectedSpecs.map(s => getLocalText("spec." + s, s)).join(", ");
+      updateStaticLabels();
       $("suggestion-box").classList.remove("hidden");
 
       $("local-list").innerHTML = matchedDocs.map(doctorCard).join("");
@@ -382,7 +438,7 @@
       const loc = $("d-location").value;
 
       let filtered = REAL_DOCTORS.filter(function(d) {
-        let specName = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
+        let specName = getLocalText(d.specialtyKey, d.specialtyKey);
         let docName = (typeof t === 'function') ? t(d.nameKey).toLowerCase() : d.nameKey.toLowerCase();
         let matchSpec = !spec || d.specialtyKey.toLowerCase().includes(spec.toLowerCase()) || specName.toLowerCase().includes(spec.toLowerCase());
         let matchName = !nameQuery || docName.includes(nameQuery) || d.nameKey.toLowerCase().includes(nameQuery);
@@ -392,6 +448,7 @@
 
       if (filtered.length === 0) filtered = REAL_DOCTORS;
 
+      updateStaticLabels();
       $("suggestion-box").classList.add("hidden");
       $("local-list").innerHTML = filtered.map(doctorCard).join("");
       $("local-count").textContent = "(" + filtered.length + ")";
@@ -402,8 +459,9 @@
 
     function chooseDoctor(id, name) {
       $("doctor_id").value = id;
-      const selText = (typeof isBn === 'function' && isBn()) ? 'নির্বাচিত: ' : 'Selected: ';
-      const hintText = (typeof isBn === 'function' && isBn()) ? 'আপনার অ্যাপয়েন্টমেন্ট কনফার্ম করতে নিচের ফর্মটি পূরণ করুন।' : 'Please fill out the form below to confirm your appointment.';
+      const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+      const selText = (lang === 'bn') ? 'নির্বাচিত: ' : 'Selected: ';
+      const hintText = (lang === 'bn') ? 'আপনার অ্যাপয়েন্টমেন্ট কনফার্ম করতে নিচের ফর্মটি পূরণ করুন।' : 'Please fill out the form below to confirm your appointment.';
       $("chosen-doctor").innerHTML = '<p class="font-bold text-teal-900 text-base">' + selText + name + '</p><p class="text-gray-600 text-xs mt-0.5">' + hintText + '</p>';
       
       if (currentMode === "symptom" && !$("reason").value) {
@@ -417,6 +475,7 @@
       populateLocations($("s-location"));
       populateLocations($("d-location"));
       renderChips();
+      updateStaticLabels();
 
       if (typeof applyTranslations === 'function') {
         applyTranslations();
@@ -442,9 +501,11 @@
       populateLocations($("s-location"));
       populateLocations($("d-location"));
       renderChips();
+      updateStaticLabels();
       const btn = $("lang-btn");
-      if (btn && typeof isBn === "function") {
-        btn.textContent = isBn() ? "English" : "বাংলা";
+      const lang = (typeof currentLang !== 'undefined') ? currentLang : 'en';
+      if (btn) {
+        btn.textContent = lang === "bn" ? "English" : "বাংলা";
       }
       if (!document.getElementById("results-section").classList.contains("hidden")) {
         if (currentMode === "symptom") runSymptomSearch(false);
