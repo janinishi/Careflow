@@ -257,7 +257,7 @@
       ];
 
       districtsList.forEach(function(d) {
-        let label = (currentLang === 'bn' && TRANSLATIONS && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d]) ? TRANSLATIONS.bn["loc." + d] : d;
+        let label = (currentLang === 'bn' && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.bn && TRANSLATIONS.bn["loc." + d]) ? TRANSLATIONS.bn["loc." + d] : d;
         selectEl.add(new Option(label, d));
       });
 
@@ -314,10 +314,10 @@
     }
 
     function doctorCard(d) {
-      let docName = (typeof t === 'function' && typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][d.nameKey]) ? t(d.nameKey) : (d.nameKey === 'doc.1' ? 'Dr. Anika Rahman' : (d.nameKey === 'doc.2' ? 'Dr. M. A. Karim' : (d.nameKey === 'doc.3' ? 'Dr. Farhana Yasmin' : (d.nameKey === 'doc.4' ? 'Dr. Rafiqul Islam' : 'Dr. Specialist'))));
-      
-      let docSpec = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey.replace('spec.', '');
-      let docHosp = (typeof t === 'function') ? t(d.hospitalKey) : 'CareFlow Medical Center';
+      // সঠিক অনুবাদ নিশ্চিত করতে ডাইনামিক ফাংশন ব্যবহার করা হলো
+      let docName = (typeof t === 'function') ? t(d.nameKey) : d.nameKey;
+      let docSpec = (typeof t === 'function') ? t(d.specialtyKey) : d.specialtyKey;
+      let docHosp = (typeof t === 'function') ? t(d.hospitalKey) : d.hospitalKey;
       
       const bookText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'অ্যাপয়েন্টমেন্ট বুক করুন' : 'Book Appointment';
       const expText = (typeof t === 'function' && typeof isBn === 'function' && isBn()) ? 'বছরের অভিজ্ঞতা' : 'years exp';
